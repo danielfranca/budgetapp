@@ -3,5 +3,10 @@
         <file>main.qml</file>
         <file>MainForm.ui.qml</file>
         <file>SwipeArea.qml</file>
+        <file>HeaderLabel.qml</file>
+        <file>NumberField.qml</file>
+        <file>CategoryField.qml</file>
+        <file>CategoryGroup.qml</file>
+        <file>main.cpp</file>
     </qresource>
 </RCC>

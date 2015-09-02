@@ -6,6 +6,8 @@ SOURCES += main.cpp
 
 RESOURCES += qml.qrc
 
+CONFIG += qml_debug
+
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
 
