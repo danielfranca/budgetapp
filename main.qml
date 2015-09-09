@@ -1,12 +1,7 @@
 import QtQuick 2.4
-import QtQuick.Controls 1.3
-import QtQuick.Extras 1.4
-import QtQuick.Window 2.2
-import QtQuick.Dialogs 1.2
-//import Material.Action 0.1
-import Material 0.1 as Material
 import Material.ListItems 0.1 as ListItem
-//import "/Users/dfranca/workspace/Qt/qml-material/modules/Material/" as Material
+import Material 0.1
+import Material.Extras 0.1
 
 ApplicationWindow {
     title: qsTr("Budget")
@@ -78,243 +73,359 @@ ApplicationWindow {
         return monthNames[monthFound] + " " + year;
     }
 
-    Material.AwesomeIcon {}
+    theme {
+        primaryColor: Palette.colors["blue"]["500"]
+        primaryDarkColor: Palette.colors["blue"]["700"]
+        accentColor: Palette.colors["teal"]["500"]
+        tabHighlightColor: "white"
+    }
 
-    Rectangle {
-        id: topBar
-        color: "lightblue";
-        height: 70
-        width: parent.width
-        anchors.horizontalCenter: parent.horizontalCenter
+    initialPage: Page {
+        id: page
+        title: "Budget App"
+        tabs: months
 
-        SwipeArea {
+        actions: [
+            Action {
+                iconName: "action/search"
+                name: "Search"
+                enabled: false
+            },
+            Action {
+                iconName: "action/settings"
+                name: "Settings"
+                //hoverAnimation: true
+            }
+        ]
+
+        TabView {
+            id: monthsView
             anchors.fill: parent
-            onSwipe: {
-                switch (direction) {
-                case "left":
-                    monthTitle.text = findMonth(monthTitle.text, true);
-                    break
-                case "right":
-                    monthTitle.text = findMonth(monthTitle.text);
-                    break
-                }
-            }
-        }
+            currentIndex: 0
+            model: months
 
-        Text {
-            text: "<";
-            font.pointSize: 48;
-            font.family: "Segoe UI";
-            color: "white"; //"lightslategray";
-            anchors.verticalCenter: parent.verticalCenter;
-            anchors.left: parent.left;
+            delegate: Item {
+                width: monthsView.width
+                height: monthsView.height
+                clip: true
 
-            MouseArea {
-                anchors.fill: parent;
-                onClicked: {
-                    monthTitle.text = findMonth(monthTitle.text);
-                }
-            }
-        }
+                property string selectedComponent: modelData[0]
 
-        Text {
-            text: ">";
-            font.pointSize: 48;
-            font.family: "Segoe UI";
-            color: "white"; //"lightslategray";
-            anchors.verticalCenter: parent.verticalCenter;
-            anchors.right: parent.right;
+                Flickable {
+                    id: flickable
 
-            MouseArea {
-                anchors.fill: parent;
-
-                onClicked: {
-                    monthTitle.text = findMonth(monthTitle.text, true);
-                }
-            }
-        }
-
-        Text {
-            id: monthTitle
-
-            text: qsTr("November 2015");
-            font.family: "Segoe UI";
-            font.pointSize: 30;
-            color: "lightslategray";
-            anchors.horizontalCenter: parent.horizontalCenter;
-            anchors.verticalCenter: parent.verticalCenter;
-
-        }
-    }
-
-    Rectangle {
-        id: formNewCategory
-        width: parent.width * 0.8
-        height: parent.height * 0.5
-        color: "white";
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.verticalCenter: parent.verticalCenter
-        opacity: 0
-        z: 100
-
-
-
-        Text {
-            id: name
-            text: qsTr("text")
-        }
-
-    }
-
-    ListView {
-        id: budgetList
-        model: ListModel {
-            ListElement {
-                group: "Tiberinho & Pablo"
-                category: "Daycare/Hotel"
-                budgeted: 50
-                outflow: 0
-            }
-            ListElement {
-                group: "Tibérinho & Pablo"
-                category: "Wash"
-                budgeted: 0
-                outflow: 0
-            }
-            ListElement {
-                group: "Monthly Bills"
-                category: "Mortgage"
-                budgeted: 930
-                outflow: 930
-            }
-            ListElement {
-                group: "Monthly Bills"
-                category: "Ziggo"
-                budgeted: 56
-                outflow: 56
-            }
-            ListElement {
-                group: "Monthly Bills"
-                category: "Eletricity/Gas"
-                budgeted: 130
-                outflow: 124
-            }
-            ListElement {
-                group: "Monthly Bills"
-                category: "T-Mobile"
-                budgeted: 130
-                outflow: 65
-            }
-            ListElement {
-                group: "Everyday Expenses"
-                category: "Groceries"
-                budgeted: 200
-                outflow: 153.75
-            }
-        }
-
-        clip: true
-        width: parent.width
-        height: parent.height - 70
-        anchors.top: topBar.bottom
-
-        header: Row {
-            width: parent.width
-            anchors.left: parent.left
-            anchors.leftMargin: 5
-
-            HeaderLabel {
-                id: categoriesLabel
-                text: qsTr("Categories");
-            }
-
-            HeaderLabel {
-                id: budgetLabel
-                text: qsTr("Budgeted");
-            }
-
-            HeaderLabel {
-                text: qsTr("Outflows");
-            }
-            HeaderLabel {
-                text: qsTr("Balance");
-            }
-        }
-
-        delegate: Rectangle {
-
-                width: parent.width
-                height: 30
-                property bool newCategoryGroup: isNewCategoryGroup(index);
-
-                Rectangle {
-                    color: "royalblue"
-                    id: groupName
+                    anchors.left: parent.left
                     anchors.top: parent.top
-
-                    Component.onCompleted: {
-                        parent.height = (newCategoryGroup)?parent.height * 2: parent.height;
-                    }
-
-                    width: (newCategoryGroup)?parent.width: 0;
-                    height: (newCategoryGroup)?30: 0;
-
-                    Text {
-                         text: (newCategoryGroup)?" (-) " + group: "";
-                         color: "white";
-                         anchors.verticalCenter: parent.verticalCenter
-                         x: 3
-                         font.bold: true
-                    }
-                }
-
-                Rectangle {
-                    width: parent.width
-                    height: 30
                     anchors.bottom: parent.bottom
-                    Row {
-                        height: parent.height
-                        width: parent.width
-                        CategoryField {
-                            text: " (-) " + category;
-                            color: "lightcyan";
+                    anchors.right: parent.right
+
+                    View {
+                        backgroundColor: theme.primaryColor;
+                        elevation: 1
+
+                        anchors {
+                            fill: parent
+                            margins: Units.dp(10)
                         }
-                        NumberField {
-                            text: budgeted;
-                            color: "lightblue";
-                        }
-                        NumberField {
-                            text: outflow;
-                            color: "lightcyan";
-                        }
-                        NumberField {
-                            text: budgeted - outflow;
-                            color: "lightblue";
-                        }
+
+
+                        ListView {
+                            id: budgetList
+                            model: ListModel {
+                                ListElement {
+                                    group: "Tiberinho & Pablo"
+                                    category: "Daycare/Hotel"
+                                    budgeted: 50
+                                    outflow: 0
+                                }
+                                ListElement {
+                                    group: "Tibérinho & Pablo"
+                                    category: "Wash"
+                                    budgeted: 0
+                                    outflow: 0
+                                }
+                                ListElement {
+                                    group: "Monthly Bills"
+                                    category: "Mortgage"
+                                    budgeted: 930
+                                    outflow: 930
+                                }
+                                ListElement {
+                                    group: "Monthly Bills"
+                                    category: "Ziggo"
+                                    budgeted: 56
+                                    outflow: 56
+                                }
+                                ListElement {
+                                    group: "Monthly Bills"
+                                    category: "Eletricity/Gas"
+                                    budgeted: 130
+                                    outflow: 124
+                                }
+                                ListElement {
+                                    group: "Monthly Bills"
+                                    category: "T-Mobile"
+                                    budgeted: 130
+                                    outflow: 65
+                                }
+                                ListElement {
+                                    group: "Everyday Expenses"
+                                    category: "Groceries"
+                                    budgeted: 200
+                                    outflow: 153.75
+                                }
+                            }
+
+                            clip: true
+                            width: parent.width
+                            height: parent.height - 70
+                            //anchors.top: topBar.bottom
+
+                            header: Row {
+                                width: parent.width
+                                anchors.left: parent.left
+                                anchors.leftMargin: 5
+
+                                HeaderLabel {
+                                    id: categoriesLabel
+                                    text: qsTr("Categories");
+                                }
+
+                                HeaderLabel {
+                                    id: budgetLabel
+                                    text: qsTr("Budgeted");
+                                }
+
+                                HeaderLabel {
+                                    text: qsTr("Outflows");
+                                }
+                                HeaderLabel {
+                                    text: qsTr("Balance");
+                                }
+                            }
+
+                            delegate: Rectangle {
+
+                                    width: parent.width
+                                    height: 30
+                                    property bool newCategoryGroup: isNewCategoryGroup(index);
+
+                                    Rectangle {
+                                        color: "royalblue"
+                                        id: groupName
+                                        anchors.top: parent.top
+
+                                        Component.onCompleted: {
+                                            parent.height = (newCategoryGroup)?parent.height * 2: parent.height;
+                                        }
+
+                                        width: (newCategoryGroup)?parent.width: 0;
+                                        height: (newCategoryGroup)?30: 0;
+
+                                        Text {
+                                             text: (newCategoryGroup)?" (-) " + group: "";
+                                             color: "white";
+                                             anchors.verticalCenter: parent.verticalCenter
+                                             x: 3
+                                             font.bold: true
+                                        }
+                                    }
+
+                                    Rectangle {
+                                        width: parent.width
+                                        height: 30
+                                        anchors.bottom: parent.bottom
+                                        Row {
+                                            height: parent.height
+                                            width: parent.width
+                                            CategoryField {
+                                                text: " (-) " + category;
+                                                color: "lightcyan";
+                                            }
+                                            NumberField {
+                                                text: budgeted;
+                                                color: "lightblue";
+                                            }
+                                            NumberField {
+                                                text: outflow;
+                                                color: "lightcyan";
+                                            }
+                                            NumberField {
+                                                text: budgeted - outflow;
+                                                color: "lightblue";
+                                            }
+                                        }
+                                    }
+                            }
                     }
-                }
-        }
 
-        footer: Component {
-            Text {
-                text: "Add Category..."
-                width: parent.width
-                height: 100
-                font.family: "Helvetica"
-                z: 1000
 
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        if (formNewCategory.opacity == 0) {
-                            formNewCategory.opacity = 0.9;
+                        Column {
+                            anchors.fill: parent
+
+                            ListItem.Standard {
+                                text: "Section Standard"
+                            }
+
                         }
-                        else {
-                            formNewCategory.opacity = 0;
+
+                        /*ListView {
+                        id: budgetList
+                        model: ListModel {
+                            ListElement {
+                                group: "Tiberinho & Pablo"
+                                category: "Daycare/Hotel"
+                                budgeted: 50
+                                outflow: 0
+                            }
+                            ListElement {
+                                group: "Tibérinho & Pablo"
+                                category: "Wash"
+                                budgeted: 0
+                                outflow: 0
+                            }
+                            ListElement {
+                                group: "Monthly Bills"
+                                category: "Mortgage"
+                                budgeted: 930
+                                outflow: 930
+                            }
+                            ListElement {
+                                group: "Monthly Bills"
+                                category: "Ziggo"
+                                budgeted: 56
+                                outflow: 56
+                            }
+                            ListElement {
+                                group: "Monthly Bills"
+                                category: "Eletricity/Gas"
+                                budgeted: 130
+                                outflow: 124
+                            }
+                            ListElement {
+                                group: "Monthly Bills"
+                                category: "T-Mobile"
+                                budgeted: 130
+                                outflow: 65
+                            }
+                            ListElement {
+                                group: "Everyday Expenses"
+                                category: "Groceries"
+                                budgeted: 200
+                                outflow: 153.75
+                            }
                         }
+
+                        clip: true
+                        width: parent.width
+                        height: parent.height - 70
+                        anchors.top: topBar.bottom
+
+                        header: Row {
+                            width: parent.width
+                            anchors.left: parent.left
+                            anchors.leftMargin: 5
+
+                            HeaderLabel {
+                                id: categoriesLabel
+                                text: qsTr("Categories");
+                            }
+
+                            HeaderLabel {
+                                id: budgetLabel
+                                text: qsTr("Budgeted");
+                            }
+
+                            HeaderLabel {
+                                text: qsTr("Outflows");
+                            }
+                            HeaderLabel {
+                                text: qsTr("Balance");
+                            }
+                        }
+
+                        delegate: Rectangle {
+
+                                width: parent.width
+                                height: 30
+                                property bool newCategoryGroup: isNewCategoryGroup(index);
+
+                                Rectangle {
+                                    color: "royalblue"
+                                    id: groupName
+                                    anchors.top: parent.top
+
+                                    Component.onCompleted: {
+                                        parent.height = (newCategoryGroup)?parent.height * 2: parent.height;
+                                    }
+
+                                    width: (newCategoryGroup)?parent.width: 0;
+                                    height: (newCategoryGroup)?30: 0;
+
+                                    Text {
+                                         text: (newCategoryGroup)?" (-) " + group: "";
+                                         color: "white";
+                                         anchors.verticalCenter: parent.verticalCenter
+                                         x: 3
+                                         font.bold: true
+                                    }
+                                }
+
+                                Rectangle {
+                                    width: parent.width
+                                    height: 30
+                                    anchors.bottom: parent.bottom
+                                    Row {
+                                        height: parent.height
+                                        width: parent.width
+                                        CategoryField {
+                                            text: " (-) " + category;
+                                            color: "lightcyan";
+                                        }
+                                        NumberField {
+                                            text: budgeted;
+                                            color: "lightblue";
+                                        }
+                                        NumberField {
+                                            text: outflow;
+                                            color: "lightcyan";
+                                        }
+                                        NumberField {
+                                            text: budgeted - outflow;
+                                            color: "lightblue";
+                                        }
+                                    }
+                                }
+                        }
+
+                        footer: Component {
+                            Text {
+                                text: "Add Category..."
+                                width: parent.width
+                                height: 100
+                                font.family: "Helvetica"
+                                z: 1000
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: {
+                                        if (formNewCategory.opacity == 0) {
+                                            formNewCategory.opacity = 0.9;
+                                        }
+                                        else {
+                                            formNewCategory.opacity = 0;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                    }*/
+
                     }
                 }
             }
+
         }
 
     }
