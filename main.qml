@@ -1,7 +1,7 @@
 import QtQuick 2.4
 import Material.ListItems 0.1 as ListItem
-import Material 0.1
-import Material.Extras 0.1
+import Material 0.1;
+import Material.Extras 0.1;
 
 ApplicationWindow {
     title: qsTr("Budget")
@@ -111,323 +111,70 @@ ApplicationWindow {
 
                 property string selectedComponent: modelData[0]
 
-                Flickable {
-                    id: flickable
+                ListView {
+                    anchors.fill: parent
+                    model: modelCategories
 
-                    anchors.left: parent.left
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    anchors.right: parent.right
 
-                    View {
-                        backgroundColor: theme.primaryColor;
+                    delegate: View {
+                        backgroundColor: theme.tabHighlightColor;
                         elevation: 1
 
-                        anchors {
-                            fill: parent
-                            margins: Units.dp(10)
+                        ListItem.Standard {
+                            width: monthsView.width
+                            height: parent.height
+                            text: group + "/" + category
+                            backgroundColor: theme.primaryColor;
                         }
-
-
-                        ListView {
-                            id: budgetList
-                            model: ListModel {
-                                ListElement {
-                                    group: "Tiberinho & Pablo"
-                                    category: "Daycare/Hotel"
-                                    budgeted: 50
-                                    outflow: 0
-                                }
-                                ListElement {
-                                    group: "Tibérinho & Pablo"
-                                    category: "Wash"
-                                    budgeted: 0
-                                    outflow: 0
-                                }
-                                ListElement {
-                                    group: "Monthly Bills"
-                                    category: "Mortgage"
-                                    budgeted: 930
-                                    outflow: 930
-                                }
-                                ListElement {
-                                    group: "Monthly Bills"
-                                    category: "Ziggo"
-                                    budgeted: 56
-                                    outflow: 56
-                                }
-                                ListElement {
-                                    group: "Monthly Bills"
-                                    category: "Eletricity/Gas"
-                                    budgeted: 130
-                                    outflow: 124
-                                }
-                                ListElement {
-                                    group: "Monthly Bills"
-                                    category: "T-Mobile"
-                                    budgeted: 130
-                                    outflow: 65
-                                }
-                                ListElement {
-                                    group: "Everyday Expenses"
-                                    category: "Groceries"
-                                    budgeted: 200
-                                    outflow: 153.75
-                                }
-                            }
-
-                            clip: true
-                            width: parent.width
-                            height: parent.height - 70
-                            //anchors.top: topBar.bottom
-
-                            header: Row {
-                                width: parent.width
-                                anchors.left: parent.left
-                                anchors.leftMargin: 5
-
-                                HeaderLabel {
-                                    id: categoriesLabel
-                                    text: qsTr("Categories");
-                                }
-
-                                HeaderLabel {
-                                    id: budgetLabel
-                                    text: qsTr("Budgeted");
-                                }
-
-                                HeaderLabel {
-                                    text: qsTr("Outflows");
-                                }
-                                HeaderLabel {
-                                    text: qsTr("Balance");
-                                }
-                            }
-
-                            delegate: Rectangle {
-
-                                    width: parent.width
-                                    height: 30
-                                    property bool newCategoryGroup: isNewCategoryGroup(index);
-
-                                    Rectangle {
-                                        color: "royalblue"
-                                        id: groupName
-                                        anchors.top: parent.top
-
-                                        Component.onCompleted: {
-                                            parent.height = (newCategoryGroup)?parent.height * 2: parent.height;
-                                        }
-
-                                        width: (newCategoryGroup)?parent.width: 0;
-                                        height: (newCategoryGroup)?30: 0;
-
-                                        Text {
-                                             text: (newCategoryGroup)?" (-) " + group: "";
-                                             color: "white";
-                                             anchors.verticalCenter: parent.verticalCenter
-                                             x: 3
-                                             font.bold: true
-                                        }
-                                    }
-
-                                    Rectangle {
-                                        width: parent.width
-                                        height: 30
-                                        anchors.bottom: parent.bottom
-                                        Row {
-                                            height: parent.height
-                                            width: parent.width
-                                            CategoryField {
-                                                text: " (-) " + category;
-                                                color: "lightcyan";
-                                            }
-                                            NumberField {
-                                                text: budgeted;
-                                                color: "lightblue";
-                                            }
-                                            NumberField {
-                                                text: outflow;
-                                                color: "lightcyan";
-                                            }
-                                            NumberField {
-                                                text: budgeted - outflow;
-                                                color: "lightblue";
-                                            }
-                                        }
-                                    }
-                            }
                     }
 
-
-                        Column {
-                            anchors.fill: parent
-
-                            ListItem.Standard {
-                                text: "Section Standard"
-                            }
-
+                    ListModel {
+                        id: modelCategories
+                        ListElement {
+                            group: "Tiberinho & Pablo"
+                            category: "Daycare/Hotel"
+                            budgeted: 50
+                            outflow: 0
                         }
-
-                        /*ListView {
-                        id: budgetList
-                        model: ListModel {
-                            ListElement {
-                                group: "Tiberinho & Pablo"
-                                category: "Daycare/Hotel"
-                                budgeted: 50
-                                outflow: 0
-                            }
-                            ListElement {
-                                group: "Tibérinho & Pablo"
-                                category: "Wash"
-                                budgeted: 0
-                                outflow: 0
-                            }
-                            ListElement {
-                                group: "Monthly Bills"
-                                category: "Mortgage"
-                                budgeted: 930
-                                outflow: 930
-                            }
-                            ListElement {
-                                group: "Monthly Bills"
-                                category: "Ziggo"
-                                budgeted: 56
-                                outflow: 56
-                            }
-                            ListElement {
-                                group: "Monthly Bills"
-                                category: "Eletricity/Gas"
-                                budgeted: 130
-                                outflow: 124
-                            }
-                            ListElement {
-                                group: "Monthly Bills"
-                                category: "T-Mobile"
-                                budgeted: 130
-                                outflow: 65
-                            }
-                            ListElement {
-                                group: "Everyday Expenses"
-                                category: "Groceries"
-                                budgeted: 200
-                                outflow: 153.75
-                            }
+                        ListElement {
+                            group: "Tibérinho & Pablo"
+                            category: "Wash"
+                            budgeted: 0
+                            outflow: 0
                         }
-
-                        clip: true
-                        width: parent.width
-                        height: parent.height - 70
-                        anchors.top: topBar.bottom
-
-                        header: Row {
-                            width: parent.width
-                            anchors.left: parent.left
-                            anchors.leftMargin: 5
-
-                            HeaderLabel {
-                                id: categoriesLabel
-                                text: qsTr("Categories");
-                            }
-
-                            HeaderLabel {
-                                id: budgetLabel
-                                text: qsTr("Budgeted");
-                            }
-
-                            HeaderLabel {
-                                text: qsTr("Outflows");
-                            }
-                            HeaderLabel {
-                                text: qsTr("Balance");
-                            }
+                        ListElement {
+                            group: "Monthly Bills"
+                            category: "Mortgage"
+                            budgeted: 930
+                            outflow: 930
                         }
-
-                        delegate: Rectangle {
-
-                                width: parent.width
-                                height: 30
-                                property bool newCategoryGroup: isNewCategoryGroup(index);
-
-                                Rectangle {
-                                    color: "royalblue"
-                                    id: groupName
-                                    anchors.top: parent.top
-
-                                    Component.onCompleted: {
-                                        parent.height = (newCategoryGroup)?parent.height * 2: parent.height;
-                                    }
-
-                                    width: (newCategoryGroup)?parent.width: 0;
-                                    height: (newCategoryGroup)?30: 0;
-
-                                    Text {
-                                         text: (newCategoryGroup)?" (-) " + group: "";
-                                         color: "white";
-                                         anchors.verticalCenter: parent.verticalCenter
-                                         x: 3
-                                         font.bold: true
-                                    }
-                                }
-
-                                Rectangle {
-                                    width: parent.width
-                                    height: 30
-                                    anchors.bottom: parent.bottom
-                                    Row {
-                                        height: parent.height
-                                        width: parent.width
-                                        CategoryField {
-                                            text: " (-) " + category;
-                                            color: "lightcyan";
-                                        }
-                                        NumberField {
-                                            text: budgeted;
-                                            color: "lightblue";
-                                        }
-                                        NumberField {
-                                            text: outflow;
-                                            color: "lightcyan";
-                                        }
-                                        NumberField {
-                                            text: budgeted - outflow;
-                                            color: "lightblue";
-                                        }
-                                    }
-                                }
+                        ListElement {
+                            group: "Monthly Bills"
+                            category: "Ziggo"
+                            budgeted: 56
+                            outflow: 56
                         }
-
-                        footer: Component {
-                            Text {
-                                text: "Add Category..."
-                                width: parent.width
-                                height: 100
-                                font.family: "Helvetica"
-                                z: 1000
-
-                                MouseArea {
-                                    anchors.fill: parent
-                                    onClicked: {
-                                        if (formNewCategory.opacity == 0) {
-                                            formNewCategory.opacity = 0.9;
-                                        }
-                                        else {
-                                            formNewCategory.opacity = 0;
-                                        }
-                                    }
-                                }
-                            }
+                        ListElement {
+                            group: "Monthly Bills"
+                            category: "Eletricity/Gas"
+                            budgeted: 130
+                            outflow: 124
                         }
-
-                    }*/
-
+                        ListElement {
+                            group: "Monthly Bills"
+                            category: "T-Mobile"
+                            budgeted: 130
+                            outflow: 65
+                        }
+                        ListElement {
+                            group: "Everyday Expenses"
+                            category: "Groceries"
+                            budgeted: 200
+                            outflow: 153.75
+                        }
                     }
                 }
             }
-
         }
-
     }
-
 }
