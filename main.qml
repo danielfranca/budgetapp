@@ -112,19 +112,65 @@ ApplicationWindow {
                 property string selectedComponent: modelData[0]
 
                 ListView {
+                    id: listViewCategories
                     anchors.fill: parent
                     model: modelCategories
 
+                    delegate: Component {
+                        View {
+                            id: viewCategory
+                            backgroundColor: theme.tabHighlightColor;
+                            elevation: 1
+                            width: listViewCategories.width
+                            height: 50
 
-                    delegate: View {
-                        backgroundColor: theme.tabHighlightColor;
-                        elevation: 1
+                            ListItem.Subheader {
+                                text: group
+                                height: parent.height / 2
+                                width: parent.width
+                            }
 
-                        ListItem.Standard {
-                            width: monthsView.width
-                            height: parent.height
-                            text: group + "/" + category
-                            backgroundColor: theme.primaryColor;
+                            ListItem.Subtitled {
+                                id: itemCategory
+                                height: parent.height
+                                width: parent.width / 2
+                                text: category
+                                secondaryItem: TextField {
+                                    //floatingLabel: true
+                                    placeholderText: "Budgeted"
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    text: budgeted
+                                    font.pixelSize: Units.dp(12)
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                }
+                                subText: group
+
+                                backgroundColor: theme.primaryColor;
+                                tintColor: theme.tabHighlightColor
+                                //valueText: "Budgeted"
+                            }
+
+                            /*TextEdit {
+                                anchors.top: itemCategory.bottom
+
+                                id: editBudgeted
+
+                                text: budgeted
+                                width: parent.width/2
+                                height: parent.height
+                            }
+
+                            TextEdit {
+                                anchors.top: itemCategory.bottom
+                                anchors.left: editBudgeted.right
+
+                                id: editOutflow
+
+                                text: outflow
+                                width: parent.width/2
+                                height: parent.height
+                            }*/
+
                         }
                     }
 
