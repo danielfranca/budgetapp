@@ -73,6 +73,27 @@ ApplicationWindow {
         return monthNames[monthFound] + " " + year;
     }
 
+    function formatNumber(value) {
+        var decimalSeparator = '.';
+        var separatedValue = value.split(decimalSeparator);
+
+        if (separatedValue.length ===  0) {
+            return '0'+ decimalSeparator + '00';
+        }
+        else if (separatedValue.length ===  1) {
+            return separatedValue + decimalSeparator + '00';
+        }
+
+        var finalValue = separatedValue[0] + decimalSeparator;
+        if (separatedValue[1].length === 1) {
+            finalValue += separatedValue[1] + '0';
+        }
+        else {
+            finalValue += separatedValue[1].slice(0, 2);
+        }
+        return finalValue;
+    }
+
     theme {
         primaryColor: Palette.colors["blue"]["500"]
         primaryDarkColor: Palette.colors["blue"]["700"]
@@ -136,12 +157,20 @@ ApplicationWindow {
                                 width: parent.width / 2
                                 text: category
                                 secondaryItem: TextField {
+                                    id: budgetedField
                                     //floatingLabel: true
                                     placeholderText: "Budgeted"
                                     anchors.verticalCenter: parent.verticalCenter
                                     text: budgeted
                                     font.pixelSize: Units.dp(12)
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    horizontalAlignment: TextInput.AlignRight
+
+                                    onActiveFocusChanged: {
+                                        if (!activeFocus) {
+                                            budgetedField.text = formatNumber(budgetedField.text);
+                                        }
+                                    }
                                 }
                                 subText: group
 
