@@ -13,7 +13,5 @@ QTPLUGIN += qsvg
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH = /Users/dfranca/workspace/Qt/qml-material/modules
 
-#QTPLUGIN += ./modules
-
 # Default rules for deployment.
 include(deployment.pri)
