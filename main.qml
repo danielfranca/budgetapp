@@ -75,22 +75,41 @@ ApplicationWindow {
 
     function formatNumber(value) {
         var decimalSeparator = '.';
-        var separatedValue = value.split(decimalSeparator);
+        var allowedAfterSeparator = 2;
+        var afterSeparator = -1;
+        var finalValue = '';
+        var begin = true;
 
-        if (separatedValue.length ===  0) {
-            return '0'+ decimalSeparator + '00';
-        }
-        else if (separatedValue.length ===  1) {
-            return separatedValue + decimalSeparator + '00';
+        for (var x=0; x < value.length; x++) {
+            //End
+            if (afterSeparator >= allowedAfterSeparator) {
+                break;
+            }
+            //IsNumber
+            else if (!isNaN(value[x])) {
+                if (!begin || value[x] !== '0') {
+                    finalValue += value[x];
+                    begin = false;
+                }
+                if (afterSeparator >= 0) {
+                    afterSeparator += 1;
+                }
+            }
+            //IsSeparator
+            else if (value[x] === decimalSeparator) {
+                finalValue += decimalSeparator;
+                afterSeparator += 1;
+            }
         }
 
-        var finalValue = separatedValue[0] + decimalSeparator;
-        if (separatedValue[1].length === 1) {
-            finalValue += separatedValue[1] + '0';
+        if (finalValue.length === 0) {
+            finalValue = '0';
         }
-        else {
-            finalValue += separatedValue[1].slice(0, 2);
+
+        if (afterSeparator >= -1) {
+            finalValue += (decimalSeparator + '00').substring(afterSeparator + 1);
         }
+
         return finalValue;
     }
 
