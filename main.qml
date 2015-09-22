@@ -161,7 +161,7 @@ ApplicationWindow {
                                     //floatingLabel: true
                                     placeholderText: "Budgeted"
                                     anchors.verticalCenter: parent.verticalCenter
-                                    text: budgeted
+                                    text: formatNumber(''+budgeted)
                                     font.pixelSize: Units.dp(12)
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     horizontalAlignment: TextInput.AlignRight
@@ -178,28 +178,6 @@ ApplicationWindow {
                                 tintColor: theme.tabHighlightColor
                                 //valueText: "Budgeted"
                             }
-
-                            /*TextEdit {
-                                anchors.top: itemCategory.bottom
-
-                                id: editBudgeted
-
-                                text: budgeted
-                                width: parent.width/2
-                                height: parent.height
-                            }
-
-                            TextEdit {
-                                anchors.top: itemCategory.bottom
-                                anchors.left: editBudgeted.right
-
-                                id: editOutflow
-
-                                text: outflow
-                                width: parent.width/2
-                                height: parent.height
-                            }*/
-
                         }
                     }
 
@@ -251,5 +229,44 @@ ApplicationWindow {
                 }
             }
         }
+
+        Button {
+            id: btAddTransaction
+            text: "New Transaction"
+            elevation: 2
+            activeFocusOnPress: true
+            backgroundColor: theme.primaryDarkColor
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+
+            onClicked: addTransactionDialog.show()
+        }
+
+        Dialog {
+            id: addTransactionDialog
+            title: "New Transaction"
+
+            TextField {
+                id: transactionValue
+                placeholderText: "Value"
+                text: '0.00'
+                font.pixelSize: Units.dp(30)
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                horizontalAlignment: TextInput.AlignRight
+
+                onActiveFocusChanged: {
+                    if (!activeFocus) {
+                        transactionValue.text = formatNumber(transactionValue.text);
+                    }
+                }
+
+
+            }
+
+            MenuField {
+                model: ["Tiberio & Pablo", "Clothing", "Grocerie"]
+            }
+        }
+
     }
 }
