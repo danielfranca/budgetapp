@@ -10,7 +10,7 @@ ApplicationWindow {
     height: 1136
     visible: true
     color: "lightcyan"
-    property var months: ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+    property var months: ["JAN", "FEB", "MAR"];
     property var monthNames: {
         "JAN": "January",
         "FEB": "February",
@@ -156,11 +156,29 @@ ApplicationWindow {
                     anchors.fill: parent
                     model: modelCategories
 
-                    delegate: Component {
+                    headerPositioning: ListView.OverlayHeader
+                    header: Component {
                         View {
                             id: viewCategory
                             backgroundColor: theme.tabHighlightColor;
-                            elevation: 1
+                            elevation: 0
+                            width: parent.width
+                            height: 50
+
+                            Button {
+                                text: "New Category"
+                                backgroundColor: theme.primaryDarkColor
+                                onClicked: categoryDialog.show()
+                                anchors.right: parent.right
+                            }
+                        }
+                    }
+
+                    delegate: Component {
+                        View {
+                            id: viewCategory
+                            //backgroundColor: theme.tabHighlightColor;
+                            //elevation: 1
                             width: listViewCategories.width
                             height: 50
 
@@ -251,14 +269,15 @@ ApplicationWindow {
 
         Button {
             id: btAddTransaction
-            text: "New Transaction"
-            elevation: 2
+            text: qsTr("New Transaction")
+            elevation: 1
             activeFocusOnPress: true
             backgroundColor: theme.primaryDarkColor
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
 
-            onClicked: addTransactionDialog.show()
+            //onClicked: addTransactionDialog.show()
+            onClicked: categoryDialog.show()
         }
 
         Dialog {
@@ -283,9 +302,50 @@ ApplicationWindow {
             }
 
             MenuField {
-                model: ["Tiberio & Pablo", "Clothing", "Grocerie"]
+                model: ["Tiberio & Pablo", "Clothing", "Groceries"]
             }
         }
 
+        Dialog {
+            id: categoryDialog
+            title: "New/Edit Category"
+
+            TextField {
+                id: categoryValue
+                placeholderText: "Category"
+                font.pixelSize: Units.dp(30)
+            }
+            MenuField {
+                model: ["Tiberio & Pablo", "Clothing", "Groceries"]
+            }
+
+            Row {
+                width: parent.width
+                spacing: Units.dp(20)
+                Button {
+                    text: qsTr("New Group")
+                    backgroundColor: theme.primaryDarkColor
+
+                    onClicked: groupDialog.show()
+                }
+
+                ActionButton {
+                    text: "Remove"
+                    backgroundColor: Palette.colors["red"]["700"]
+                    iconName: "content/remove_circle"
+                }
+            }
+        }
+
+        Dialog {
+            id: groupDialog
+            title: "New Group"
+
+            TextField {
+                id: groupValue
+                placeholderText: "Group"
+                font.pixelSize: Units.dp(30)
+            }
+        }
     }
 }
