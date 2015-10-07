@@ -10,21 +10,7 @@ ApplicationWindow {
     height: 1136
     visible: true
     color: "lightcyan"
-    property var months: ["JAN", "FEB", "MAR"];
-    property var monthNames: {
-        "JAN": "January",
-        "FEB": "February",
-        "MAR": "March",
-        "APR": "April",
-        "MAY": "May",
-        "JUN": "June",
-        "JUL": "July",
-        "AUG": "August",
-        "SEP": "September",
-        "OCT": "October",
-        "NOV": "November",
-        "DEC": "December"
-    };
+    property var definedMonths: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
     function isNewCategoryGroup(index) {
         console.log("Index: " + index);
@@ -43,34 +29,33 @@ ApplicationWindow {
         return newOne;
     }
 
-    function findMonth(currentTitle, next) {
+    function findMonths() {
+        var months = [];
+        var d = new Date();
+        var monthIndex = d.getMonth();
+        var currentYear = d.getFullYear();
 
-        var splitted = currentTitle.split(" ");
-        var month = splitted[0].toUpperCase().slice(0, 3);
-        var year = parseInt(splitted[1]);
-        var monthFound;
+        months.push(currentYear + ' ' + definedMonths[monthIndex]);
 
-        var idx = months.indexOf(month);
-        if (next) {
-            if (idx >= 0 && idx < 11) {
-                monthFound = months[idx + 1];
-            }
-            else if (idx === 11) {
-                monthFound = months[0];
-                year++;
-            }
-        }
-        else {
-            if (idx > 0 && idx <= 11) {
-                monthFound = months[idx - 1];
-            }
-            else if (idx === 0) {
-                monthFound = months[11];
-                year--;
-            }
+        monthIndex--;
+
+        if (monthIndex < 0) {
+            monthIndex = 12 + monthIndex;
+            currentYear--;
         }
 
-        return monthNames[monthFound] + " " + year;
+        months.push(currentYear + ' ' + definedMonths[monthIndex]);
+
+        monthIndex--;
+
+        if (monthIndex < 0) {
+            monthIndex = 12 + monthIndex;
+            currentYear--;
+        }
+
+        months.push(currentYear + ' ' + definedMonths[monthIndex]);
+
+        return months.reverse();
     }
 
     function formatNumber(value) {
@@ -125,7 +110,7 @@ ApplicationWindow {
     initialPage: Page {
         id: page
         title: "Budget App"
-        tabs: months
+        tabs: findMonths()
 
         actions: [
             Action {
@@ -144,14 +129,14 @@ ApplicationWindow {
             id: monthsView
             anchors.fill: parent
             currentIndex: 0
-            model: months
+            model: findMonths()
 
             delegate: Item {
                 width: monthsView.width
                 height: monthsView.height
                 clip: true
 
-                property string selectedComponent: modelData[0]
+                property string selectedComponent: modelData[2]
 
                 ListView {
                     id: listViewCategories
