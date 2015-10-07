@@ -80,6 +80,8 @@ ApplicationWindow {
         var finalValue = '';
         var begin = true;
 
+        value += ''; //Convert number to string
+
         for (var x=0; x < value.length; x++) {
             //End
             if (afterSeparator >= allowedAfterSeparator) {
@@ -193,6 +195,7 @@ ApplicationWindow {
                                 height: parent.height
                                 width: parent.width / 2
                                 text: category
+                                valueText: formatNumber(10-7.3)
                                 secondaryItem: TextField {
                                     id: budgetedField
                                     //floatingLabel: true
