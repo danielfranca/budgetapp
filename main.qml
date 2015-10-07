@@ -176,6 +176,38 @@ ApplicationWindow {
                         }
                     }
 
+                    footer: Component {
+                        View {
+                            id: viewFooter
+                            backgroundColor: theme.tabHighlightColor;
+                            elevation: 0
+                            width: parent.width
+                            height: 50
+
+                            TextField {
+                                id: checkinAccount
+                                placeholderText: "Checkin Account"
+                                font.pixelSize: Units.dp(18)
+                                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                horizontalAlignment: TextInput.AlignRight
+
+                                onActiveFocusChanged: {
+                                    if (!activeFocus) {
+                                        checkinAccount.text = formatNumber(checkinAccount.text);
+                                    }
+                                }
+                            }
+
+                            Label {
+                                id: totalBalance
+                                text: formatNumber("105.10")
+                                font.pixelSize: Units.dp(25)
+                                anchors.right: parent.right
+                                anchors.rightMargin: 10
+                            }
+                        }
+                    }
+
                     delegate: Component {
                         View {
                             id: viewCategory
