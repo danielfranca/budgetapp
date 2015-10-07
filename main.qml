@@ -11,6 +11,8 @@ ApplicationWindow {
     visible: true
     color: "lightcyan"
     property var definedMonths: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    property var currencySymbols: ["€", "$", "R$"];
+    property string currencySymbol: ""
 
     function isNewCategoryGroup(index) {
         console.log("Index: " + index);
@@ -97,7 +99,7 @@ ApplicationWindow {
             finalValue += (decimalSeparator + '00').substring(afterSeparator + 1);
         }
 
-        return finalValue;
+        return currencySymbol + ' ' + finalValue;
     }
 
     theme {
@@ -151,6 +153,19 @@ ApplicationWindow {
                             elevation: 0
                             width: parent.width
                             height: 50
+
+                            MenuField {
+                                id: selectedCurrency
+                                model: ["Euro (€)", "US Dollar ($)", "Brazilian Real (R$)"];
+                                maxVisibleItems: 3
+                                width: 0.3 * parent.width
+
+                                Component.onCompleted: { currencySymbol = currencySymbols[0]; }
+
+                                onSelectedIndexChanged: {
+                                    currencySymbol = currencySymbols[selectedIndex];
+                                }
+                            }
 
                             Button {
                                 text: "New Category"
