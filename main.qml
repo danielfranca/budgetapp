@@ -60,6 +60,10 @@ ApplicationWindow {
         return months.reverse();
     }
 
+    function removeCurrencySymbol(value) {
+        return value.split(' ')[1];
+    }
+
     function formatNumber(value) {
         var decimalSeparator = '.';
         var allowedAfterSeparator = 2;
@@ -192,7 +196,9 @@ ApplicationWindow {
                                 horizontalAlignment: TextInput.AlignRight
 
                                 onActiveFocusChanged: {
-                                    if (!activeFocus) {
+                                    if (activeFocus) {
+                                        checkinAccount.text = removeCurrencySymbol(checkinAccount.text);
+                                    } else {
                                         checkinAccount.text = formatNumber(checkinAccount.text);
                                     }
                                 }
@@ -239,7 +245,9 @@ ApplicationWindow {
                                     horizontalAlignment: TextInput.AlignRight
 
                                     onActiveFocusChanged: {
-                                        if (!activeFocus) {
+                                        if (activeFocus) {
+                                            budgetedField.text = removeCurrencySymbol(budgetedField.text);
+                                        } else {
                                             budgetedField.text = formatNumber(budgetedField.text);
                                         }
                                     }
