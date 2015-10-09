@@ -1,4 +1,5 @@
 import QtQuick 2.4
+import QtQuick.Layouts 1.1
 import Material.ListItems 0.1 as ListItem
 import Material 0.1;
 import Material.Extras 0.1;
@@ -65,6 +66,9 @@ ApplicationWindow {
     }
 
     function removeCurrencySymbol(value) {
+        if (!value.contains(' ')) {
+            return value;
+        }
         return value.split(' ')[1];
     }
 
@@ -124,14 +128,11 @@ ApplicationWindow {
 
         actions: [
             Action {
-                iconName: "action/search"
-                name: "Search"
-                enabled: false
-            },
-            Action {
                 iconName: "action/settings"
                 name: "Settings"
-                //hoverAnimation: true
+                onTriggered: {
+                    settings.show();
+                }
             }
         ]
 
@@ -161,19 +162,6 @@ ApplicationWindow {
                             elevation: 0
                             width: parent.width
                             height: 50
-
-                            MenuField {
-                                id: selectedCurrency
-                                model: ["Euro (€)", "US Dollar ($)", "Brazilian Real (R$)"];
-                                maxVisibleItems: 3
-                                width: 0.3 * parent.width
-
-                                Component.onCompleted: { currencySymbol = currencySymbols[0]; }
-
-                                onSelectedIndexChanged: {
-                                    currencySymbol = currencySymbols[selectedIndex];
-                                }
-                            }
 
                             Button {
                                 text: "New Category"
@@ -393,6 +381,52 @@ ApplicationWindow {
                 placeholderText: "Group"
                 font.pixelSize: Units.dp(30)
             }
+        }
+
+        Dialog {
+            id: settings
+            title: "Settings"
+            height: parent.height / 3
+
+            RowLayout {
+                width: parent.width
+
+                Label {
+                    Layout.alignment: Qt.AlignVCenter
+                    Layout.preferredWidth: 0.4 * parent.width
+                    text: "Currency"
+                }
+
+                MenuField {
+                    id: selectedCurrency
+                    model: ["EUR €", "USD $", "BRL R$"];
+                    maxVisibleItems: 3
+                    width: 0.3 * parent.width
+                    Component.onCompleted: { currencySymbol = currencySymbols[0]; }
+
+                    onSelectedIndexChanged: {
+                        currencySymbol = currencySymbols[selectedIndex];
+                    }
+                }
+            }
+
+            RowLayout {
+                width: parent.width
+
+                Label {
+                    Layout.alignment: Qt.AlignVCenter
+                    Layout.preferredWidth: 0.4 * parent.width
+                    text: "Decimal Separator"
+                }
+
+                MenuField {
+                    id: decimalSeparatorChoice
+                    model: [".", ","];
+                    maxVisibleItems: 2
+                    width: 0.3 * parent.width
+                }
+            }
+
         }
     }
 }
