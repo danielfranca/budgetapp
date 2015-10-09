@@ -10,7 +10,7 @@ ApplicationWindow {
     height: 1136
     visible: true
     color: "lightcyan"
-    property var definedMonths: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    property var definedMonths: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     property var currencySymbols: ["€", "$", "R$"];
     property string currencySymbol: ""
 
@@ -31,13 +31,17 @@ ApplicationWindow {
         return newOne;
     }
 
+    function createMonthTitle(monthIndex, currentYear) {
+        return definedMonths[monthIndex] + '/' + currentYear;
+    }
+
     function findMonths() {
         var months = [];
         var d = new Date();
         var monthIndex = d.getMonth();
         var currentYear = d.getFullYear();
 
-        months.push(currentYear + ' ' + definedMonths[monthIndex]);
+        months.push(createMonthTitle(monthIndex, currentYear));
 
         monthIndex--;
 
@@ -46,7 +50,7 @@ ApplicationWindow {
             currentYear--;
         }
 
-        months.push(currentYear + ' ' + definedMonths[monthIndex]);
+        months.push(createMonthTitle(monthIndex, currentYear));
 
         monthIndex--;
 
@@ -55,7 +59,7 @@ ApplicationWindow {
             currentYear--;
         }
 
-        months.push(currentYear + ' ' + definedMonths[monthIndex]);
+        months.push(createMonthTitle(monthIndex, currentYear));
 
         return months.reverse();
     }
