@@ -3,6 +3,7 @@ import QtQuick.Layouts 1.1
 import Material.ListItems 0.1 as ListItem
 import Material 0.1;
 import Material.Extras 0.1;
+import "models.js" as Models
 
 ApplicationWindow {
     title: qsTr("Budget")
@@ -14,7 +15,6 @@ ApplicationWindow {
     property var definedMonths: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     property var currencySymbols: ["€", "$", "R$"];
     property string currencySymbol: ""
-
     function isNewCategoryGroup(index) {
         console.log("Index: " + index);
         var currentItem = budgetList.model.get(index);
@@ -113,6 +113,10 @@ ApplicationWindow {
 
         return currencySymbol + ' ' + finalValue;
     }
+
+    /*Component.onCompleted: {
+        Models.init();
+    }*/
 
     theme {
         primaryColor: Palette.colors["blue"]["500"]
@@ -255,7 +259,16 @@ ApplicationWindow {
 
                     ListModel {
                         id: modelCategories
-                        ListElement {
+
+                        /*Component.onCompleted: {
+                            //Load from the database
+                            var items = Models.BudgetItem.filter().all();
+                            for (var idx=0; idx <= items.length; idx++) {
+                                modelCategories.append(items[idx]);
+                            }
+                        }*/
+
+                        /*ListElement {
                             group: "Tiberinho & Pablo"
                             category: "Daycare/Hotel"
                             budgeted: 50
@@ -296,7 +309,7 @@ ApplicationWindow {
                             category: "Groceries"
                             budgeted: 200
                             outflow: 153.75
-                        }
+                        }*/
                     }
                 }
             }

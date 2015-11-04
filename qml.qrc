@@ -882,5 +882,7 @@
         <file>modules/Material/fonts/fontawesome/FontAwesome.otf</file>
         <file>modules/QtQuick/Controls/Styles/Material/TextFieldStyle.qml</file>
         <file>modules/QtQuick/Controls/Styles/Material/ToolButtonStyle.qml</file>
+        <file>models.js</file>
+        <file>quickmodel.js</file>
     </qresource>
 </RCC>
