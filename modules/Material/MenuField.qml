@@ -43,6 +43,7 @@ Item {
     property string textRole
     readonly property string selectedText: listView.currentItem.text
     property alias selectedIndex: listView.currentIndex
+    property var selectedItem: model.get(selectedIndex)
     property int maxVisibleItems: 4
 
     property alias placeholderText: fieldPlaceholder.text
