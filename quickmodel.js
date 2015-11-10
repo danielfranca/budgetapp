@@ -10,7 +10,7 @@
 function QMDatabase(appName, version) {
 
     //Tables to handle version control
-    this.conn = Sql.LocalStorage.openDatabaseSync(appName + '_db', "1.0", appName, 100000,
+    this.conn = Sql.LocalStorage.openDatabaseSync(appName + '_db', "", appName, 100000,
         function(db) { console.log("*** DATABASE DOESNT EXIST ****"); }
     );
     var AppVersion = this.define('__AppVersion__', {
