@@ -4,17 +4,19 @@ var qmdb;
 var Group;
 var Category;
 var BudgetItem;
-var Transaction;
+var MoneyTransaction;
 
 function init() {
-    qmdb = new QuickModel.QMDatabase("BudgetApp", "1.0");
+    qmdb = new QuickModel.QMDatabase("BudgetApp3", "1.0");
 
-    Group = qmdb.define("Group", {
+    console.log("Models::init");
+
+    Group = qmdb.define("CategoryGroup", {
                 name: qmdb.String("Group Name", {accept_null: false})
     });
 
-    Category = qmdb.define("Group", {
-                        group: qmdb.FK("Group", {references: 'Group'}),
+    Category = qmdb.define("Category", {
+                        categoryGroup: qmdb.FK("Group", {references: 'CategoryGroup'}),
                         name: qmdb.String("Category Name", {accept_null: false})
     });
 
@@ -25,7 +27,7 @@ function init() {
                         budget: qmdb.Float("Budget", {default: 0})
     });
 
-    Transaction = qmdb.define("Transaction", {
+    MoneyTransaction = qmdb.define("MoneyTransaction", {
                            date: qmdb.Date("Date", {accept_null: false}),
                            category: qmdb.FK("Category", {references: 'Category'}),
                            value: qmdb.Float("Budget", {default: 0})

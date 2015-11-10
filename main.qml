@@ -15,6 +15,7 @@ ApplicationWindow {
     property var definedMonths: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     property var currencySymbols: ["€", "$", "R$"];
     property string currencySymbol: ""
+    property int selectedGroupId: -1
     function isNewCategoryGroup(index) {
         console.log("Index: " + index);
         var currentItem = budgetList.model.get(index);
@@ -114,10 +115,6 @@ ApplicationWindow {
         return currencySymbol + ' ' + finalValue;
     }
 
-    /*Component.onCompleted: {
-        Models.init();
-    }*/
-
     theme {
         primaryColor: Palette.colors["blue"]["500"]
         primaryDarkColor: Palette.colors["blue"]["700"]
@@ -156,7 +153,7 @@ ApplicationWindow {
                 ListView {
                     id: listViewCategories
                     anchors.fill: parent
-                    model: modelCategories
+                    model: modelBudgetItems
 
                     headerPositioning: ListView.OverlayHeader
                     header: Component {
@@ -258,15 +255,26 @@ ApplicationWindow {
                     }
 
                     ListModel {
-                        id: modelCategories
+                        id: modelBudgetItems
 
-                        /*Component.onCompleted: {
+                        Component.onCompleted: {
                             //Load from the database
-                            var items = Models.BudgetItem.filter().all();
-                            for (var idx=0; idx <= items.length; idx++) {
-                                modelCategories.append(items[idx]);
+                            Models.init();
+                            //TOOD: Needs to filter by month/year
+                            var items = Models.BudgetItem.all();
+                            if (items.length === 0) {
+                                var categories = Models.Category.all()
+                                for (var x = 0; x < categories.length; x++) {
+                                    Models.BudgetItem.create({budget:0, category: categories[x].id, month: 11, year: 2015})
+                                }
+                                items = Models.BudgetItem.all();
                             }
-                        }*/
+
+                            for (var x=0; x < items.length; x++) {
+                                var category = Models.Category.filter({id: items[x].category}).get()
+                                modelBudgetItems.append({budgeted:items[x].budget, category: category.name, group: category.group});
+                            }
+                        }
 
                         /*ListElement {
                             group: "Tiberinho & Pablo"
@@ -363,8 +371,28 @@ ApplicationWindow {
                 placeholderText: "Category"
                 font.pixelSize: Units.dp(30)
             }
+
             MenuField {
-                model: ["Tiberio & Pablo", "Clothing", "Groceries"]
+                id: groupSelector
+                textRole: "name"
+                model: ListModel {
+                    id: modelGroups
+
+                    Component.onCompleted: {
+                        var groups = Models.Group.all();
+                        for (var x=0; x < groups.length; x++) {
+                            modelGroups.append({name:groups[x].name, id: groups[x].id});
+                        }
+                    }
+                }
+
+            }
+
+            onAccepted: {
+                var group = Models.Category.create({name: categoryValue.text, categoryGroup: groupSelector.selectedItem.id});
+                if (group) {
+                    modelGroups.append(group);
+                }
             }
 
             Row {
@@ -393,6 +421,13 @@ ApplicationWindow {
                 id: groupValue
                 placeholderText: "Group"
                 font.pixelSize: Units.dp(30)
+            }
+
+            onAccepted: {
+                var group = Models.Group.create({name: groupValue.text});
+                if (group) {
+                    modelGroups.append(group);
+                }
             }
         }
 
