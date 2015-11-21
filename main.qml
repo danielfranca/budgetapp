@@ -264,8 +264,9 @@ ApplicationWindow {
                             var items = Models.BudgetItem.all();
                             if (items.length === 0) {
                                 var categories = Models.Category.all()
+                                var date = new Date()
                                 for (var x = 0; x < categories.length; x++) {
-                                    Models.BudgetItem.create({budget:0, category: categories[x].id, month: 11, year: 2015})
+                                    Models.BudgetItem.create({budget:0, category: categories[x].id, month: date.getMonth()+1, year: date.getFullYear()})
                                 }
                                 items = Models.BudgetItem.all();
                             }
