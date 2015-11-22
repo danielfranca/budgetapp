@@ -16,6 +16,7 @@ ApplicationWindow {
     property var currencySymbols: ["€", "$", "R$"];
     property string currencySymbol: ""
     property int selectedGroupId: -1
+    property var modelBudgetItemsGlobal;
     function isNewCategoryGroup(index) {
         console.log("Index: " + index);
         var currentItem = budgetList.model.get(index);
@@ -147,11 +148,12 @@ ApplicationWindow {
                 width: monthsView.width
                 height: monthsView.height
                 clip: true
+                id: monthsViewDelegate
 
                 property string selectedComponent: modelData[2]
 
                 ListView {
-                    id: listViewCategories
+                    id: listViewBudgetItems
                     anchors.fill: parent
                     model: modelBudgetItems
 
@@ -212,11 +214,11 @@ ApplicationWindow {
                             id: viewCategory
                             //backgroundColor: theme.tabHighlightColor;
                             //elevation: 1
-                            width: listViewCategories.width
+                            width: listViewBudgetItems.width
                             height: 50
 
                             ListItem.Subheader {
-                                text: group
+                                text: category
                                 height: parent.height / 2
                                 width: parent.width
                             }
@@ -232,7 +234,7 @@ ApplicationWindow {
                                     //floatingLabel: true
                                     placeholderText: "Budgeted"
                                     anchors.verticalCenter: parent.verticalCenter
-                                    text: formatNumber(''+budgeted)
+                                    text: formatNumber(''+budget)
                                     font.pixelSize: Units.dp(12)
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     horizontalAlignment: TextInput.AlignRight
@@ -271,54 +273,20 @@ ApplicationWindow {
                                 items = Models.BudgetItem.all();
                             }
 
-                            for (var x=0; x < items.length; x++) {
-                                var category = Models.Category.filter({id: items[x].category}).get()
-                                modelBudgetItems.append({budgeted:items[x].budget, category: category.name, group: category.group});
-                            }
-                        }
+                            for (var y=0; y < items.length; y++) {
+                                var category = Models.Category.filter({id: items[y].category}).get()
+                                var group = Models.Group.filter({id: category.categoryGroup}).get();
+                                console.log("**** BUDGET: " + JSON.stringify(items[y]))
+                                var budget = items[y].budget;
+                                if (!budget) {
+                                    budget = 0;
+                                }
 
-                        /*ListElement {
-                            group: "Tiberinho & Pablo"
-                            category: "Daycare/Hotel"
-                            budgeted: 50
-                            outflow: 0
+                                modelBudgetItems.append({budget: budget, category: category.name, group: group.name});
+                            }
+
+                            modelBudgetItemsGlobal = modelBudgetItems
                         }
-                        ListElement {
-                            group: "Tibérinho & Pablo"
-                            category: "Wash"
-                            budgeted: 0
-                            outflow: 0
-                        }
-                        ListElement {
-                            group: "Monthly Bills"
-                            category: "Mortgage"
-                            budgeted: 930
-                            outflow: 930
-                        }
-                        ListElement {
-                            group: "Monthly Bills"
-                            category: "Ziggo"
-                            budgeted: 56
-                            outflow: 56
-                        }
-                        ListElement {
-                            group: "Monthly Bills"
-                            category: "Eletricity/Gas"
-                            budgeted: 130
-                            outflow: 124
-                        }
-                        ListElement {
-                            group: "Monthly Bills"
-                            category: "T-Mobile"
-                            budgeted: 130
-                            outflow: 65
-                        }
-                        ListElement {
-                            group: "Everyday Expenses"
-                            category: "Groceries"
-                            budgeted: 200
-                            outflow: 153.75
-                        }*/
                     }
                 }
             }
@@ -390,9 +358,19 @@ ApplicationWindow {
             }
 
             onAccepted: {
-                var group = Models.Category.create({name: categoryValue.text, categoryGroup: groupSelector.selectedItem.id});
-                if (group) {
-                    modelGroups.append(group);
+                var category = Models.Category.create({name: categoryValue.text, categoryGroup: groupSelector.selectedItem.id});
+                if (category) {
+                    //Create new budget for that
+                    var d = new Date();
+                    var budget = Models.BudgetItem.create({month: d.getMonth()+1, year: d.getFullYear(), category: category.id, budget: 0});
+                    modelBudgetItemsGlobal.append(budget);
+                    if (modelBudgetItemsGlobal) {
+                        console.log("DEFINED");
+                        console.log(modelBudgetItemsGlobal)
+                    }
+                    else {
+                        console.log("NOT DEFINED");
+                    }
                 }
             }
 
