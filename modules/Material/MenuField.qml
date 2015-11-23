@@ -41,9 +41,23 @@ Item {
 
     property alias model: listView.model
     property string textRole
-    readonly property string selectedText: listView.currentItem.text
+    readonly property string selectedText: {
+        if (listView.currentItem) {
+            return listView.currentItem.text
+        }
+        else {
+            return ''
+        }
+    }
     property alias selectedIndex: listView.currentIndex
-    property var selectedItem: model.get(selectedIndex)
+    property var selectedItem: {
+        if (typeof model.get === 'function') {
+            return model.get(selectedIndex)
+        }
+        else {
+            return null;
+        }
+    }
     property int maxVisibleItems: 4
 
     property alias placeholderText: fieldPlaceholder.text
@@ -92,7 +106,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignVCenter
 
-                text: listView.currentItem.text
+                text: (listView.currentItem)?listView.currentItem.text:''
                 style: "subheading"
                 elide: Text.ElideRight
             }

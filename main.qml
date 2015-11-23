@@ -16,7 +16,6 @@ ApplicationWindow {
     property var currencySymbols: ["€", "$", "R$"];
     property string currencySymbol: ""
     property int selectedGroupId: -1
-    property var modelBudgetItemsGlobal;
     function isNewCategoryGroup(index) {
         console.log("Index: " + index);
         var currentItem = budgetList.model.get(index);
@@ -121,6 +120,36 @@ ApplicationWindow {
         primaryDarkColor: Palette.colors["blue"]["700"]
         accentColor: Palette.colors["teal"]["500"]
         tabHighlightColor: "white"
+    }
+
+    ListModel {
+        id: modelBudgetItems
+
+        Component.onCompleted: {
+            //Load from the database
+            Models.init();
+            //TOOD: Needs to filter by month/year
+            var items = Models.BudgetItem.all();
+            if (items.length === 0) {
+                var categories = Models.Category.all()
+                var date = new Date()
+                for (var x = 0; x < categories.length; x++) {
+                    Models.BudgetItem.create({budget:0, category: categories[x].id, month: date.getMonth()+1, year: date.getFullYear()})
+                }
+                items = Models.BudgetItem.all();
+            }
+
+            for (var y=0; y < items.length; y++) {
+                var category = Models.Category.filter({id: items[y].category}).get()
+                var group = Models.Group.filter({id: category.categoryGroup}).get();
+                var budget = items[y].budget;
+                if (!budget) {
+                    budget = 0;
+                }
+
+                modelBudgetItems.append({budget: budget, category: category.name, group: group.name});
+            }
+        }
     }
 
     initialPage: Page {
@@ -255,39 +284,6 @@ ApplicationWindow {
                             }
                         }
                     }
-
-                    ListModel {
-                        id: modelBudgetItems
-
-                        Component.onCompleted: {
-                            //Load from the database
-                            Models.init();
-                            //TOOD: Needs to filter by month/year
-                            var items = Models.BudgetItem.all();
-                            if (items.length === 0) {
-                                var categories = Models.Category.all()
-                                var date = new Date()
-                                for (var x = 0; x < categories.length; x++) {
-                                    Models.BudgetItem.create({budget:0, category: categories[x].id, month: date.getMonth()+1, year: date.getFullYear()})
-                                }
-                                items = Models.BudgetItem.all();
-                            }
-
-                            for (var y=0; y < items.length; y++) {
-                                var category = Models.Category.filter({id: items[y].category}).get()
-                                var group = Models.Group.filter({id: category.categoryGroup}).get();
-                                console.log("**** BUDGET: " + JSON.stringify(items[y]))
-                                var budget = items[y].budget;
-                                if (!budget) {
-                                    budget = 0;
-                                }
-
-                                modelBudgetItems.append({budget: budget, category: category.name, group: group.name});
-                            }
-
-                            modelBudgetItemsGlobal = modelBudgetItems
-                        }
-                    }
                 }
             }
         }
@@ -362,15 +358,11 @@ ApplicationWindow {
                 if (category) {
                     //Create new budget for that
                     var d = new Date();
-                    var budget = Models.BudgetItem.create({month: d.getMonth()+1, year: d.getFullYear(), category: category.id, budget: 0});
-                    modelBudgetItemsGlobal.append(budget);
-                    if (modelBudgetItemsGlobal) {
-                        console.log("DEFINED");
-                        console.log(modelBudgetItemsGlobal)
-                    }
-                    else {
-                        console.log("NOT DEFINED");
-                    }
+                    var b = Models.BudgetItem.create({month: d.getMonth()+1, year: d.getFullYear(), category: category.id, budget: 0});
+                    var cat = Models.Category.filter({id: b.category}).get();
+                    var grp = Models.Group.filter({id: category.categoryGroup}).get();
+
+                    modelBudgetItems.append({budget: b.budget, category: cat.name, group: grp.name});
                 }
             }
 
