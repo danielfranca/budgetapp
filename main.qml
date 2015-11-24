@@ -239,48 +239,64 @@ ApplicationWindow {
                     }
 
                     delegate: Component {
-                        View {
-                            id: viewCategory
-                            //backgroundColor: theme.tabHighlightColor;
-                            //elevation: 1
-                            width: listViewBudgetItems.width
-                            height: 50
-
-                            ListItem.Subheader {
-                                text: category
-                                height: parent.height / 2
-                                width: parent.width
+                        Row {
+                            ActionButton {
+                                id: buttonRemoveItems
+                                text: "Remove"
+                                backgroundColor: Palette.colors["red"]["700"]
+                                iconName: "content/remove_circle"
+                                width: 30
+                                height: 30
+                                visible: false
                             }
 
-                            ListItem.Subtitled {
-                                id: itemCategory
-                                height: parent.height
-                                width: parent.width / 2
-                                text: category
-                                valueText: formatNumber(10-7.3)
-                                secondaryItem: TextField {
-                                    id: budgetedField
-                                    //floatingLabel: true
-                                    placeholderText: "Budgeted"
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    text: formatNumber(''+budget)
-                                    font.pixelSize: Units.dp(12)
-                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    horizontalAlignment: TextInput.AlignRight
+                            View {
+                                id: viewCategory
+                                width: listViewBudgetItems.width
+                                height: 50
 
-                                    onActiveFocusChanged: {
-                                        if (activeFocus) {
-                                            budgetedField.text = removeCurrencySymbol(budgetedField.text);
-                                        } else {
-                                            budgetedField.text = formatNumber(budgetedField.text);
+                                ListItem.Subtitled {
+                                    id: itemCategory
+                                    height: parent.height
+                                    width: parent.width / 2
+                                    text: category
+                                    valueText: formatNumber(10-7.3)
+                                    secondaryItem: TextField {
+                                        id: budgetedField
+                                        placeholderText: "Budgeted"
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        text: formatNumber(''+budget)
+                                        font.pixelSize: Units.dp(12)
+                                        inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                        horizontalAlignment: TextInput.AlignRight
+
+                                        onActiveFocusChanged: {
+                                            if (activeFocus) {
+                                                budgetedField.text = removeCurrencySymbol(budgetedField.text);
+                                            } else {
+                                                budgetedField.text = formatNumber(budgetedField.text);
+                                            }
+                                        }
+                                    }
+                                    subText: group
+
+                                    backgroundColor: theme.primaryColor;
+                                    tintColor: theme.tabHighlightColor
+
+                                    action: Icon {
+                                        anchors.centerIn: parent
+                                        name: "content/remove_circle"
+                                        visible: true
+                                        size: Units.dp(32)
+
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            onClicked: {
+                                                console.log("*** Clicked ***")
+                                            }
                                         }
                                     }
                                 }
-                                subText: group
-
-                                backgroundColor: theme.primaryColor;
-                                tintColor: theme.tabHighlightColor
-                                //valueText: "Budgeted"
                             }
                         }
                     }
