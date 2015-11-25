@@ -147,7 +147,7 @@ ApplicationWindow {
                     budget = 0;
                 }
 
-                modelBudgetItems.append({budget: budget, category: category.name, group: group.name});
+                modelBudgetItems.append({id: items[y].id, budget: budget, category: category.name, group: group.name});
             }
         }
     }
@@ -239,61 +239,50 @@ ApplicationWindow {
                     }
 
                     delegate: Component {
-                        Row {
-                            ActionButton {
-                                id: buttonRemoveItems
-                                text: "Remove"
-                                backgroundColor: Palette.colors["red"]["700"]
-                                iconName: "content/remove_circle"
-                                width: 30
-                                height: 30
-                                visible: false
-                            }
+                        View {
+                            id: viewCategory
+                            width: listViewBudgetItems.width
+                            height: 50
 
-                            View {
-                                id: viewCategory
-                                width: listViewBudgetItems.width
-                                height: 50
+                            ListItem.Subtitled {
+                                id: itemCategory
+                                height: parent.height
+                                width: parent.width / 2
+                                text: category
+                                valueText: formatNumber(10-7.3)
+                                secondaryItem: TextField {
+                                    id: budgetedField
+                                    placeholderText: "Budgeted"
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    text: formatNumber(''+budget)
+                                    font.pixelSize: Units.dp(12)
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    horizontalAlignment: TextInput.AlignRight
 
-                                ListItem.Subtitled {
-                                    id: itemCategory
-                                    height: parent.height
-                                    width: parent.width / 2
-                                    text: category
-                                    valueText: formatNumber(10-7.3)
-                                    secondaryItem: TextField {
-                                        id: budgetedField
-                                        placeholderText: "Budgeted"
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        text: formatNumber(''+budget)
-                                        font.pixelSize: Units.dp(12)
-                                        inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                        horizontalAlignment: TextInput.AlignRight
-
-                                        onActiveFocusChanged: {
-                                            if (activeFocus) {
-                                                budgetedField.text = removeCurrencySymbol(budgetedField.text);
-                                            } else {
-                                                budgetedField.text = formatNumber(budgetedField.text);
-                                            }
+                                    onActiveFocusChanged: {
+                                        if (activeFocus) {
+                                            budgetedField.text = removeCurrencySymbol(budgetedField.text);
+                                        } else {
+                                            budgetedField.text = formatNumber(budgetedField.text);
                                         }
                                     }
-                                    subText: group
+                                }
+                                subText: group
 
-                                    backgroundColor: theme.primaryColor;
-                                    tintColor: theme.tabHighlightColor
+                                backgroundColor: theme.primaryColor;
+                                tintColor: theme.tabHighlightColor
 
-                                    action: Icon {
-                                        anchors.centerIn: parent
-                                        name: "content/remove_circle"
-                                        visible: true
-                                        size: Units.dp(32)
+                                action: Icon {
+                                    anchors.centerIn: parent
+                                    name: "content/remove_circle"
+                                    visible: true
+                                    size: Units.dp(32)
 
-                                        MouseArea {
-                                            anchors.fill: parent
-                                            onClicked: {
-                                                console.log("*** Clicked ***")
-                                            }
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        onClicked: {
+                                            Models.BudgetItem.filter({id: id}).remove();
+                                            modelBudgetItems.remove(index)
                                         }
                                     }
                                 }
@@ -378,7 +367,7 @@ ApplicationWindow {
                     var cat = Models.Category.filter({id: b.category}).get();
                     var grp = Models.Group.filter({id: category.categoryGroup}).get();
 
-                    modelBudgetItems.append({budget: b.budget, category: cat.name, group: grp.name});
+                    modelBudgetItems.append({id: b.id, budget: b.budget, category: cat.name, group: grp.name});
                 }
             }
 
