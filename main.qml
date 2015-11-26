@@ -302,8 +302,7 @@ ApplicationWindow {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
 
-            //onClicked: addTransactionDialog.show()
-            onClicked: categoryDialog.show()
+            onClicked: addTransactionDialog.show()
         }
 
         Dialog {
@@ -328,7 +327,31 @@ ApplicationWindow {
             }
 
             MenuField {
-                model: ["Tiberio & Pablo", "Clothing", "Groceries"]
+                id: menuAddTransaction
+                textRole: "name"
+
+                model: ListModel {
+                    id: modelCategories
+
+                    Component.onCompleted: {
+                        var groups = Models.Group.all();
+                        console.log("GROUPS: " + groups.length);
+                        for (var x=0; x < groups.length; x++) {
+                            var categories = Models.Category.filter({categoryGroup: groups[x].id}).all();
+                            console.log("CATEGORIES: " + categories.length);
+                            for (var y=0; y < categories.length; y++) {
+                                var name = groups[x].name + '/' + categories[y].name;
+                                console.log("name: " + name);
+                                modelCategories.append({id: categories[y].id, name: name});
+                            }
+                        }
+                    }
+                }
+            }
+
+            onAccepted: {
+                var d = new Date();
+                Models.MoneyTransaction.create({value: transactionValue.text, category: menuAddTransaction.selectedItem.category, date: d.toISOString()});
             }
         }
 
