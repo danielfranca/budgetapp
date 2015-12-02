@@ -33,6 +33,38 @@ ApplicationWindow {
         return newOne;
     }
 
+    function calculateBudgetBalance(budgetItem, month, year) {
+        var monthDays = {
+            1: 31,
+            2: 29,
+            3: 31,
+            4: 30,
+            5: 31,
+            6: 30,
+            7: 31,
+            8: 31,
+            9: 30,
+            10: 31,
+            11: 30,
+            12: 31
+        }
+
+        var endDay = monthDays[month];
+        var startDate = '01/' + month + '/' + year;
+        var endDate = endDay + '/' + month + '/' + year;
+
+        var transactions = Models.MoneyTransaction.filter({category: budgetItem.category, date__ge: startDate, date__le: endDate}).all();
+        var totalSpent = 0;
+        for (var x=0; x<transactions.length; x++) {
+            totalSpent += transactions[x].value;
+        }
+        var balance = budgetItem.budget - totalSpent;
+
+        console.log("BALANCE: " + balance)
+
+        return balance;
+    }
+
     function createMonthTitle(monthIndex, currentYear) {
         return definedMonths[monthIndex] + '/' + currentYear;
     }
@@ -249,7 +281,7 @@ ApplicationWindow {
                                 height: parent.height
                                 width: parent.width / 2
                                 text: category
-                                valueText: formatNumber(10-7.3)
+                                valueText: formatNumber(calculateBudgetBalance(Models.BudgetItem.filter({id: id}).get(), 11, 2015))
                                 secondaryItem: TextField {
                                     id: budgetedField
                                     placeholderText: "Budgeted"
