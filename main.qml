@@ -95,10 +95,11 @@ ApplicationWindow {
     }
 
     function removeCurrencySymbol(value) {
-        if (!value.indexOf(' ') > -1) {
+        if (value.indexOf(' ') === -1) {
             return value;
         }
-        return value.split(' ')[1];
+        var sp = value.split(' ');
+        return sp[sp.length-1].trim();
     }
 
     function formatNumber(value) {
@@ -291,7 +292,8 @@ ApplicationWindow {
                                         if (activeFocus) {
                                             budgetedField.text = removeCurrencySymbol(budgetedField.text);
                                         } else {
-                                            itemCategory.valueText = calculateBudgetBalance(Models.BudgetItem.filter({id: id}).get(), page.tabs[page.selectedTab])
+                                            var budgetItem = Models.BudgetItem.filter({id: id}).update({budget: removeCurrencySymbol(budgetedField.text)}).get();
+                                            itemCategory.valueText = formatNumber(calculateBudgetBalance(budgetItem, page.tabs[page.selectedTab]))
                                             budgetedField.text = formatNumber(budgetedField.text);
                                         }
                                     }
