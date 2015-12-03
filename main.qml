@@ -99,7 +99,7 @@ ApplicationWindow {
     }
 
     function removeCurrencySymbol(value) {
-        if (!value.contains(' ')) {
+        if (!value.indexOf(' ') > -1) {
             return value;
         }
         return value.split(' ')[1];
