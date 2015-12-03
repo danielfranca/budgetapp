@@ -316,6 +316,7 @@ QMModel.prototype = {
 
         this._meta.db._runSQL(sql);
         this.filterConditions = {};
+        return this;
     },
     insert: function(obj) {
         var sql = "INSERT INTO " + this._meta.tableName + "(";
