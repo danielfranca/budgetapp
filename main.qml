@@ -13,6 +13,7 @@ ApplicationWindow {
     visible: true
     color: "lightcyan"
     property var definedMonths: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    property var definedMonthDays: {"Jan": 31, "Feb": 29, "Mar": 31, "Apr": 30, "May": 31, "Jun": 30, "Jul": 31, "Aug": 31, "Sep": 30, "Oct": 31, "Nov": 30, "Dec": 31};
     property var currencySymbols: ["€", "$", "R$"];
     property string currencySymbol: ""
     property int selectedGroupId: -1
@@ -33,26 +34,21 @@ ApplicationWindow {
         return newOne;
     }
 
-    function calculateBudgetBalance(budgetItem, month, year) {
-        var monthDays = {
-            1: 31,
-            2: 29,
-            3: 31,
-            4: 30,
-            5: 31,
-            6: 30,
-            7: 31,
-            8: 31,
-            9: 30,
-            10: 31,
-            11: 30,
-            12: 31
-        }
+    function calculateBudgetBalance(budgetItem, date) {
 
-        var endDay = monthDays[month];
+        var splittedDate = date.split('/');
+        var monthName = splittedDate[0];
+        var month = definedMonths.indexOf(monthName) + 1;
+        var year = splittedDate[1];
+
+        console.log("MONTH: " + month);
+        console.log("YEAR: " + year);
+
+        var endDay = definedMonthDays[monthName];
         var startDate = '01/' + month + '/' + year;
         var endDate = endDay + '/' + month + '/' + year;
 
+        //TODO: Change it to a SUM aggregation function call
         var transactions = Models.MoneyTransaction.filter({category: budgetItem.category, date__ge: startDate, date__le: endDate}).all();
         var totalSpent = 0;
         for (var x=0; x<transactions.length; x++) {
@@ -203,7 +199,7 @@ ApplicationWindow {
             id: monthsView
             anchors.fill: parent
             currentIndex: 0
-            model: findMonths()
+            model: page.tabs
 
             delegate: Item {
                 width: monthsView.width
@@ -281,7 +277,7 @@ ApplicationWindow {
                                 height: parent.height
                                 width: parent.width / 2
                                 text: category
-                                valueText: formatNumber(calculateBudgetBalance(Models.BudgetItem.filter({id: id}).get(), 11, 2015))
+                                valueText: formatNumber(calculateBudgetBalance(Models.BudgetItem.filter({id: id}).get(), page.tabs[page.selectedTab]))
                                 secondaryItem: TextField {
                                     id: budgetedField
                                     placeholderText: "Budgeted"
@@ -295,6 +291,7 @@ ApplicationWindow {
                                         if (activeFocus) {
                                             budgetedField.text = removeCurrencySymbol(budgetedField.text);
                                         } else {
+                                            itemCategory.valueText = calculateBudgetBalance(Models.BudgetItem.filter({id: id}).get(), page.tabs[page.selectedTab])
                                             budgetedField.text = formatNumber(budgetedField.text);
                                         }
                                     }
