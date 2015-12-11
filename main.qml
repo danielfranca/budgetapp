@@ -196,7 +196,7 @@ ApplicationWindow {
             }
         ]
 
-        TabView {
+        TabBar {
             id: monthsView
             anchors.fill: parent
             currentIndex: 0
