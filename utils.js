@@ -31,11 +31,15 @@ function createMonthTitle(monthIndex, currentYear) {
     return definedMonths[monthIndex] + '/' + currentYear;
 }
 
-function findMonths() {
+function findMonths(date) {
     var months = [];
-    var d = new Date();
-    var monthIndex = d.getMonth();
-    var currentYear = d.getFullYear();
+
+    if (!date) {
+        date = new Date();
+    }
+
+    var monthIndex = date.getMonth();
+    var currentYear = date.getFullYear();
 
     months.push(createMonthTitle(monthIndex, currentYear));
 
@@ -68,8 +72,7 @@ function removeCurrencySymbol(value) {
     return sp[sp.length-1].trim();
 }
 
-function formatNumber(value) {
-    var decimalSeparator = '.';
+function formatNumber(value, currencySymbol, decimalSeparator) {
     var allowedAfterSeparator = 2;
     var afterSeparator = -1;
     var finalValue = '';
@@ -94,6 +97,10 @@ function formatNumber(value) {
         }
         //IsSeparator
         else if (value[x] === decimalSeparator) {
+            if (finalValue.length === 0) {
+                finalValue = '0';
+            }
+
             finalValue += decimalSeparator;
             afterSeparator += 1;
         }

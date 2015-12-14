@@ -16,6 +16,8 @@ ApplicationWindow {
     property var definedMonthDays: {"Jan": 31, "Feb": 29, "Mar": 31, "Apr": 30, "May": 31, "Jun": 30, "Jul": 31, "Aug": 31, "Sep": 30, "Oct": 31, "Nov": 30, "Dec": 31};
     property var currencySymbols: ["€", "$", "R$"];
     property string currencySymbol: ""
+    property var decimalSeparators: [".", ","];
+    property string decimalSeparator: ""
     property int selectedGroupId: -1
 
     theme {
@@ -120,14 +122,14 @@ ApplicationWindow {
                                     if (activeFocus) {
                                         checkinAccount.text = Utils.removeCurrencySymbol(checkinAccount.text);
                                     } else {
-                                        checkinAccount.text = Utils.formatNumber(checkinAccount.text);
+                                        checkinAccount.text = Utils.formatNumber(checkinAccount.text, currencySymbol, decimalSeparator);
                                     }
                                 }
                             }
 
                             Label {
                                 id: totalBalance
-                                text: Utils.formatNumber("105.10")
+                                text: Utils.formatNumber("105.10", currencySymbol, decimalSeparator)
                                 font.pixelSize: Units.dp(25)
                                 anchors.right: parent.right
                                 anchors.rightMargin: 10
@@ -146,12 +148,12 @@ ApplicationWindow {
                                 height: parent.height
                                 width: parent.width / 2
                                 text: category
-                                valueText: Utils.formatNumber(Utils.calculateBudgetBalance(Models.BudgetItem.filter({id: id}).get(), page.tabs[page.selectedTab]))
+                                valueText: Utils.formatNumber(Utils.calculateBudgetBalance(Models.BudgetItem.filter({id: id}).get(), page.tabs[page.selectedTab]), currencySymbol, decimalSeparator)
                                 secondaryItem: TextField {
                                     id: budgetedField
                                     placeholderText: "Budgeted"
                                     anchors.verticalCenter: parent.verticalCenter
-                                    text: Utils.formatNumber(''+budget)
+                                    text: Utils.formatNumber(''+budget, currencySymbol, decimalSeparator)
                                     font.pixelSize: Units.dp(12)
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     horizontalAlignment: TextInput.AlignRight
@@ -161,8 +163,8 @@ ApplicationWindow {
                                             budgetedField.text = Utils.removeCurrencySymbol(budgetedField.text);
                                         } else {
                                             var budgetItem = Models.BudgetItem.filter({id: id}).update({budget: Utils.removeCurrencySymbol(budgetedField.text)}).get();
-                                            itemCategory.valueText = Utils.formatNumber(Utils.calculateBudgetBalance(budgetItem, page.tabs[page.selectedTab]))
-                                            budgetedField.text = Utils.formatNumber(budgetedField.text);
+                                            itemCategory.valueText = Utils.formatNumber(Utils.calculateBudgetBalance(budgetItem, page.tabs[page.selectedTab]), currencySymbol, decimalSeparator)
+                                            budgetedField.text = Utils.formatNumber(budgetedField.text, currencySymbol, decimalSeparator);
                                         }
                                     }
                                 }
@@ -218,7 +220,7 @@ ApplicationWindow {
 
                 onActiveFocusChanged: {
                     if (!activeFocus) {
-                        transactionValue.text = Utils.formatNumber(transactionValue.text);
+                        transactionValue.text = Utils.formatNumber(transactionValue.text, currencySymbol, decimalSeparator);
                     }
                 }
 
@@ -345,7 +347,7 @@ ApplicationWindow {
 
                 MenuField {
                     id: selectedCurrency
-                    model: ["EUR €", "USD $", "BRL R$"];
+                    model: currencySymbols
                     maxVisibleItems: 3
                     width: 0.3 * parent.width
                     Component.onCompleted: { currencySymbol = currencySymbols[0]; }
@@ -367,9 +369,16 @@ ApplicationWindow {
 
                 MenuField {
                     id: decimalSeparatorChoice
-                    model: [".", ","];
+                    model: decimalSeparators
                     maxVisibleItems: 2
                     width: 0.3 * parent.width
+
+                    Component.onCompleted: { decimalSeparator = decimalSeparators[0]; }
+
+                    onSelectedIndexChanged: {
+                        decimalSeparator = decimalSeparators[selectedIndex];
+                    }
+
                 }
             }
 

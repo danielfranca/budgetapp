@@ -2,8 +2,12 @@
 #include <QQmlApplicationEngine>
 
 #include <QtQuickTest/quicktest.h>
-//QUICK_TEST_MAIN(budgetApp)
 
+#define __TEST__
+
+#ifdef __TEST__
+QUICK_TEST_MAIN(budgetApp)
+#else
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -14,3 +18,4 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
+#endif
