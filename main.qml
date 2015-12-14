@@ -181,7 +181,7 @@ ApplicationWindow {
         }
     }
 
-    initialPage: Page {
+    initialPage: TabbedPage {
         id: page
         title: "Budget App"
         tabs: findMonths()
@@ -196,18 +196,12 @@ ApplicationWindow {
             }
         ]
 
-        TabBar {
-            id: monthsView
-            anchors.fill: parent
-            currentIndex: 0
+        Repeater {
+            property var months: findMonths()
             model: page.tabs
 
-            delegate: Item {
-                width: monthsView.width
-                height: monthsView.height
-                clip: true
-                id: monthsViewDelegate
-
+            delegate: Tab {
+                title: months[index]
                 property string selectedComponent: modelData[2]
 
                 ListView {
