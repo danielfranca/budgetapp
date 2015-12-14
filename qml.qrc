@@ -4,5 +4,7 @@
         <file>MainForm.ui.qml</file>
         <file>models.js</file>
         <file>quickmodel.js</file>
+        <file>tst_budget.qml</file>
+        <file>utils.js</file>
     </qresource>
 </RCC>

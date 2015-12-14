@@ -6,7 +6,7 @@ SOURCES += main.cpp
 
 RESOURCES += qml.qrc
 
-CONFIG += qml_debug
+CONFIG += qml_debug warn_on qmltestcase
 
 QTPLUGIN += qsvg
 

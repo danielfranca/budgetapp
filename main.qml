@@ -4,6 +4,7 @@ import Material.ListItems 0.1 as ListItem
 import Material 0.1;
 import Material.Extras 0.1;
 import "models.js" as Models
+import "utils.js" as Utils
 
 ApplicationWindow {
     title: qsTr("Budget")
@@ -12,137 +13,10 @@ ApplicationWindow {
     height: 1136
     visible: true
     color: "lightcyan"
-    property var definedMonths: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     property var definedMonthDays: {"Jan": 31, "Feb": 29, "Mar": 31, "Apr": 30, "May": 31, "Jun": 30, "Jul": 31, "Aug": 31, "Sep": 30, "Oct": 31, "Nov": 30, "Dec": 31};
     property var currencySymbols: ["€", "$", "R$"];
     property string currencySymbol: ""
     property int selectedGroupId: -1
-    function isNewCategoryGroup(index) {
-        console.log("Index: " + index);
-        var currentItem = budgetList.model.get(index);
-        console.log(JSON.stringify(currentItem));
-        var newOne = true;
-
-        if (index > 0) {
-            var oldItem = budgetList.model.get(index-1);
-            console.log(JSON.stringify(oldItem));
-            newOne = (oldItem.group !== currentItem.group);
-        }
-
-        console.log("Is new category group? " + newOne);
-
-        return newOne;
-    }
-
-    function calculateBudgetBalance(budgetItem, date) {
-
-        var splittedDate = date.split('/');
-        var monthName = splittedDate[0];
-        var month = definedMonths.indexOf(monthName) + 1;
-        var year = splittedDate[1];
-
-        console.log("MONTH: " + month);
-        console.log("YEAR: " + year);
-
-        var endDay = definedMonthDays[monthName];
-        var startDate = '01/' + month + '/' + year;
-        var endDate = endDay + '/' + month + '/' + year;
-
-        //TODO: Change it to a SUM aggregation function call
-        var transactions = Models.MoneyTransaction.filter({category: budgetItem.category, date__ge: startDate, date__le: endDate}).all();
-        var totalSpent = 0;
-        for (var x=0; x<transactions.length; x++) {
-            totalSpent += transactions[x].value;
-        }
-        var balance = budgetItem.budget - totalSpent;
-
-        console.log("BALANCE: " + balance)
-
-        return balance;
-    }
-
-    function createMonthTitle(monthIndex, currentYear) {
-        return definedMonths[monthIndex] + '/' + currentYear;
-    }
-
-    function findMonths() {
-        var months = [];
-        var d = new Date();
-        var monthIndex = d.getMonth();
-        var currentYear = d.getFullYear();
-
-        months.push(createMonthTitle(monthIndex, currentYear));
-
-        monthIndex--;
-
-        if (monthIndex < 0) {
-            monthIndex = 12 + monthIndex;
-            currentYear--;
-        }
-
-        months.push(createMonthTitle(monthIndex, currentYear));
-
-        monthIndex--;
-
-        if (monthIndex < 0) {
-            monthIndex = 12 + monthIndex;
-            currentYear--;
-        }
-
-        months.push(createMonthTitle(monthIndex, currentYear));
-
-        return months.reverse();
-    }
-
-    function removeCurrencySymbol(value) {
-        if (value.indexOf(' ') === -1) {
-            return value;
-        }
-        var sp = value.split(' ');
-        return sp[sp.length-1].trim();
-    }
-
-    function formatNumber(value) {
-        var decimalSeparator = '.';
-        var allowedAfterSeparator = 2;
-        var afterSeparator = -1;
-        var finalValue = '';
-        var begin = true;
-
-        value += ''; //Convert number to string
-
-        for (var x=0; x < value.length; x++) {
-            //End
-            if (afterSeparator >= allowedAfterSeparator) {
-                break;
-            }
-            //IsNumber
-            else if (!isNaN(value[x])) {
-                if (!begin || value[x] !== '0') {
-                    finalValue += value[x];
-                    begin = false;
-                }
-                if (afterSeparator >= 0) {
-                    afterSeparator += 1;
-                }
-            }
-            //IsSeparator
-            else if (value[x] === decimalSeparator) {
-                finalValue += decimalSeparator;
-                afterSeparator += 1;
-            }
-        }
-
-        if (finalValue.length === 0) {
-            finalValue = '0';
-        }
-
-        if (afterSeparator >= -1) {
-            finalValue += (decimalSeparator + '00').substring(afterSeparator + 1);
-        }
-
-        return currencySymbol + ' ' + finalValue;
-    }
 
     theme {
         primaryColor: Palette.colors["blue"]["500"]
@@ -184,7 +58,7 @@ ApplicationWindow {
     initialPage: TabbedPage {
         id: page
         title: "Budget App"
-        tabs: findMonths()
+        tabs: Utils.findMonths()
 
         actions: [
             Action {
@@ -197,7 +71,7 @@ ApplicationWindow {
         ]
 
         Repeater {
-            property var months: findMonths()
+            property var months: page.tabs
             model: page.tabs
 
             delegate: Tab {
@@ -244,16 +118,16 @@ ApplicationWindow {
 
                                 onActiveFocusChanged: {
                                     if (activeFocus) {
-                                        checkinAccount.text = removeCurrencySymbol(checkinAccount.text);
+                                        checkinAccount.text = Utils.removeCurrencySymbol(checkinAccount.text);
                                     } else {
-                                        checkinAccount.text = formatNumber(checkinAccount.text);
+                                        checkinAccount.text = Utils.formatNumber(checkinAccount.text);
                                     }
                                 }
                             }
 
                             Label {
                                 id: totalBalance
-                                text: formatNumber("105.10")
+                                text: Utils.formatNumber("105.10")
                                 font.pixelSize: Units.dp(25)
                                 anchors.right: parent.right
                                 anchors.rightMargin: 10
@@ -272,23 +146,23 @@ ApplicationWindow {
                                 height: parent.height
                                 width: parent.width / 2
                                 text: category
-                                valueText: formatNumber(calculateBudgetBalance(Models.BudgetItem.filter({id: id}).get(), page.tabs[page.selectedTab]))
+                                valueText: Utils.formatNumber(Utils.calculateBudgetBalance(Models.BudgetItem.filter({id: id}).get(), page.tabs[page.selectedTab]))
                                 secondaryItem: TextField {
                                     id: budgetedField
                                     placeholderText: "Budgeted"
                                     anchors.verticalCenter: parent.verticalCenter
-                                    text: formatNumber(''+budget)
+                                    text: Utils.formatNumber(''+budget)
                                     font.pixelSize: Units.dp(12)
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     horizontalAlignment: TextInput.AlignRight
 
                                     onActiveFocusChanged: {
                                         if (activeFocus) {
-                                            budgetedField.text = removeCurrencySymbol(budgetedField.text);
+                                            budgetedField.text = Utils.removeCurrencySymbol(budgetedField.text);
                                         } else {
-                                            var budgetItem = Models.BudgetItem.filter({id: id}).update({budget: removeCurrencySymbol(budgetedField.text)}).get();
-                                            itemCategory.valueText = formatNumber(calculateBudgetBalance(budgetItem, page.tabs[page.selectedTab]))
-                                            budgetedField.text = formatNumber(budgetedField.text);
+                                            var budgetItem = Models.BudgetItem.filter({id: id}).update({budget: Utils.removeCurrencySymbol(budgetedField.text)}).get();
+                                            itemCategory.valueText = Utils.formatNumber(Utils.calculateBudgetBalance(budgetItem, page.tabs[page.selectedTab]))
+                                            budgetedField.text = Utils.formatNumber(budgetedField.text);
                                         }
                                     }
                                 }
@@ -344,7 +218,7 @@ ApplicationWindow {
 
                 onActiveFocusChanged: {
                     if (!activeFocus) {
-                        transactionValue.text = formatNumber(transactionValue.text);
+                        transactionValue.text = Utils.formatNumber(transactionValue.text);
                     }
                 }
 
