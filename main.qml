@@ -162,7 +162,8 @@ ApplicationWindow {
                                         if (activeFocus) {
                                             budgetedField.text = Utils.removeCurrencySymbol(budgetedField.text);
                                         } else {
-                                            var budgetItem = Models.BudgetItem.filter({id: id}).update({budget: Utils.removeCurrencySymbol(budgetedField.text)}).get();
+                                            Models.BudgetItem.filter({id: id}).update({budget: Utils.removeCurrencySymbol(budgetedField.text)});
+                                            var budgetItem = Models.BudgetItem.filter({id: id}).get()
                                             itemCategory.valueText = Utils.formatNumber(Utils.calculateBudgetBalance(budgetItem, page.tabs[page.selectedTab]), currencySymbol, decimalSeparator)
                                             budgetedField.text = Utils.formatNumber(budgetedField.text, currencySymbol, decimalSeparator);
                                         }
