@@ -252,7 +252,7 @@ ApplicationWindow {
 
             onAccepted: {
                 var d = new Date();
-                Models.MoneyTransaction.create({value: transactionValue.text, category: menuAddTransaction.selectedItem.category, date: d.toISOString()});
+                Models.MoneyTransaction.create({value: transactionValue.text, category: menuAddTransaction.selectedComponent.category, date: d.toISOString()});
             }
         }
 
@@ -283,7 +283,7 @@ ApplicationWindow {
             }
 
             onAccepted: {
-                var category = Models.Category.create({name: categoryValue.text, categoryGroup: groupSelector.selectedItem.id});
+                var category = Models.Category.create({name: categoryValue.text, categoryGroup: groupSelector.selectedComponent.id});
                 if (category) {
                     //Create new budget for that
                     var d = new Date();

@@ -10,6 +10,8 @@ CONFIG += qml_debug warn_on qmltestcase
 
 QTPLUGIN += qsvg
 
+#DEFINES += "__TEST__"
+
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH = /Users/dfranca/workspace/Qt/qml-material/modules
 
