@@ -12,8 +12,7 @@ ApplicationWindow {
     width: 640
     height: 1136
     visible: true
-    color: "lightcyan"
-    property var definedMonthDays: {"Jan": 31, "Feb": 29, "Mar": 31, "Apr": 30, "May": 31, "Jun": 30, "Jul": 31, "Aug": 31, "Sep": 30, "Oct": 31, "Nov": 30, "Dec": 31};
+    color: "lightcyan"    
     property var currencySymbols: ["€", "$", "R$"];
     property string currencySymbol: ""
     property var decimalSeparators: [".", ","];
@@ -35,9 +34,9 @@ ApplicationWindow {
             Models.init();
             //TOOD: Needs to filter by month/year
             var items = Models.BudgetItem.all();
+            var date = new Date()
             if (items.length === 0) {
                 var categories = Models.Category.all()
-                var date = new Date()
                 for (var x = 0; x < categories.length; x++) {
                     Models.BudgetItem.create({budget:0, category: categories[x].id, month: date.getMonth()+1, year: date.getFullYear()})
                 }
@@ -52,7 +51,68 @@ ApplicationWindow {
                     budget = 0;
                 }
 
-                modelBudgetItems.append({id: items[y].id, budget: budget, category: category.name, group: group.name});
+                var transactions = Utils.retrieveTransactions(date, category.id)
+                console.log("*** NUMBER OF TRANSACTIONS: " + transactions.length)
+                var sum = Utils.sumTransactions(transactions)
+                modelBudgetItems.append({id: items[y].id, budget: budget, category: category.name, group: group.name, transactions: transactions, balance: sum-budget});
+            }
+        }
+    }
+
+    Component {
+        id: delegatedBudgetItem
+
+        View {
+            id: viewCategory
+            width: parent.width
+            height: 50
+            property alias budgetValue: itemCategory.valueText
+
+            ListItem.Subtitled {
+                id: itemCategory
+                height: parent.height
+                width: parent.width / 2
+                text: category
+                valueText: Utils.formatNumber(balance, currencySymbol, decimalSeparator)
+                secondaryItem: TextField {
+                    id: budgetedField
+                    placeholderText: "Budgeted"
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: Utils.formatNumber(''+budget, currencySymbol, decimalSeparator)
+                    font.pixelSize: Units.dp(12)
+                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                    horizontalAlignment: TextInput.AlignRight
+
+                    onActiveFocusChanged: {
+                        if (activeFocus) {
+                            budgetedField.text = Utils.removeCurrencySymbol(budgetedField.text);
+                        } else {
+                            Models.BudgetItem.filter({id: id}).update({budget: Utils.removeCurrencySymbol(budgetedField.text)});
+                            var budgetItem = Models.BudgetItem.filter({id: id}).get()
+                            itemCategory.valueText = Utils.formatNumber(balance, currencySymbol, decimalSeparator)
+                            budgetedField.text = Utils.formatNumber(budgetedField.text, currencySymbol, decimalSeparator);
+                        }
+                    }
+                }
+                subText: group
+
+                backgroundColor: theme.primaryColor;
+                tintColor: theme.tabHighlightColor
+
+                action: Icon {
+                    anchors.centerIn: parent
+                    name: "content/remove_circle"
+                    visible: true
+                    size: Units.dp(32)
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            Models.BudgetItem.filter({id: id}).remove();
+                            modelBudgetItems.remove(index)
+                        }
+                    }
+                }
             }
         }
     }
@@ -61,6 +121,7 @@ ApplicationWindow {
         id: page
         title: "Budget App"
         tabs: Utils.findMonths()
+        selectedTab: 2
 
         actions: [
             Action {
@@ -77,7 +138,7 @@ ApplicationWindow {
             model: page.tabs
 
             delegate: Tab {
-                title: months[index]
+                //title: months[index]
                 property string selectedComponent: modelData[2]
 
                 ListView {
@@ -88,7 +149,7 @@ ApplicationWindow {
                     headerPositioning: ListView.OverlayHeader
                     header: Component {
                         View {
-                            id: viewCategory
+                            id: headerCategory
                             backgroundColor: theme.tabHighlightColor;
                             elevation: 0
                             width: parent.width
@@ -136,61 +197,7 @@ ApplicationWindow {
                             }
                         }
                     }
-
-                    delegate: Component {
-                        View {
-                            id: viewCategory
-                            width: listViewBudgetItems.width
-                            height: 50
-
-                            ListItem.Subtitled {
-                                id: itemCategory
-                                height: parent.height
-                                width: parent.width / 2
-                                text: category
-                                valueText: Utils.formatNumber(Utils.calculateBudgetBalance(Models.BudgetItem.filter({id: id}).get(), page.tabs[page.selectedTab]), currencySymbol, decimalSeparator)
-                                secondaryItem: TextField {
-                                    id: budgetedField
-                                    placeholderText: "Budgeted"
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    text: Utils.formatNumber(''+budget, currencySymbol, decimalSeparator)
-                                    font.pixelSize: Units.dp(12)
-                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    horizontalAlignment: TextInput.AlignRight
-
-                                    onActiveFocusChanged: {
-                                        if (activeFocus) {
-                                            budgetedField.text = Utils.removeCurrencySymbol(budgetedField.text);
-                                        } else {
-                                            Models.BudgetItem.filter({id: id}).update({budget: Utils.removeCurrencySymbol(budgetedField.text)});
-                                            var budgetItem = Models.BudgetItem.filter({id: id}).get()
-                                            itemCategory.valueText = Utils.formatNumber(Utils.calculateBudgetBalance(budgetItem, page.tabs[page.selectedTab]), currencySymbol, decimalSeparator)
-                                            budgetedField.text = Utils.formatNumber(budgetedField.text, currencySymbol, decimalSeparator);
-                                        }
-                                    }
-                                }
-                                subText: group
-
-                                backgroundColor: theme.primaryColor;
-                                tintColor: theme.tabHighlightColor
-
-                                action: Icon {
-                                    anchors.centerIn: parent
-                                    name: "content/remove_circle"
-                                    visible: true
-                                    size: Units.dp(32)
-
-                                    MouseArea {
-                                        anchors.fill: parent
-                                        onClicked: {
-                                            Models.BudgetItem.filter({id: id}).remove();
-                                            modelBudgetItems.remove(index)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    delegate: delegatedBudgetItem
                 }
             }
         }
@@ -224,8 +231,6 @@ ApplicationWindow {
                         transactionValue.text = Utils.formatNumber(transactionValue.text, currencySymbol, decimalSeparator);
                     }
                 }
-
-
             }
 
             MenuField {
@@ -253,7 +258,23 @@ ApplicationWindow {
 
             onAccepted: {
                 var d = new Date();
-                Models.MoneyTransaction.create({value: transactionValue.text, category: menuAddTransaction.selectedComponent.category, date: d.toISOString()});
+                if (!menuAddTransaction.selectedComponent)
+                    return;
+                var categoryId = menuAddTransaction.selectedComponent.id;
+                var transaction = Models.MoneyTransaction.create({value: Utils.removeCurrencySymbol(transactionValue.text), category: categoryId, date: d.toISOString()});
+                for (var x=0; x < modelBudgetItems.count; x++) {
+                    var item = modelBudgetItems.get(x)
+                    var bItem = Models.BudgetItem.filter({id: item.id}).get()
+                    if (bItem.category === categoryId) {
+                        item.budget = Utils.calculateBudgetBalance(bItem, page.tabs[page.selectedTab])
+                        var dtArr = Utils.convertTitleToMonthYear(page.tabs[page.selectedTab])
+                        //var d = new Date(dtArr[1], dtArr[0], 1)
+                        var transactions = Utils.retrieveTransactions(d, categoryId)
+                        var sum = Utils.sumTransactions(transactions)
+                        item.balance = item.budget - sum
+                        break;
+                    }
+                }
             }
         }
 
@@ -292,7 +313,9 @@ ApplicationWindow {
                     var cat = Models.Category.filter({id: b.category}).get();
                     var grp = Models.Group.filter({id: category.categoryGroup}).get();
 
-                    modelBudgetItems.append({id: b.id, budget: b.budget, category: cat.name, group: grp.name});
+                    var transactions = Utils.retrieveTransactions(d, category.id)
+                    var sum = Utils.sumTransactions(transactions)
+                    modelBudgetItems.append({id: b.id, budget: b.budget, category: cat.name, group: grp.name, transactions: transactions, balance: b.budget-sum});
                 }
             }
 
@@ -379,7 +402,6 @@ ApplicationWindow {
                     onSelectedIndexChanged: {
                         decimalSeparator = decimalSeparators[selectedIndex];
                     }
-
                 }
             }
 

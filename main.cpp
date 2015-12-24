@@ -2,6 +2,7 @@
 #include <QQmlApplicationEngine>
 
 #include <QtQuickTest/quicktest.h>
+//#define __TEST__
 
 #ifdef __TEST__
 QUICK_TEST_MAIN(budgetApp)

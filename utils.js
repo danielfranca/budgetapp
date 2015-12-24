@@ -1,30 +1,73 @@
 var definedMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+var definedMonthDays = {"Jan": 31, "Feb": 29, "Mar": 31, "Apr": 30, "May": 31, "Jun": 30, "Jul": 31, "Aug": 31, "Sep": 30, "Oct": 31, "Nov": 30, "Dec": 31};
 
-function calculateBudgetBalance(budgetItem, date) {
+//Database: ~/Library/Application Support/BudgetApp/QML/OfflineStorage/Databases
 
-    var splittedDate = date.split('/');
+function convertTitleToMonthYear(title) {
+    var splittedDate = title.split('/');
     var monthName = splittedDate[0];
     var month = definedMonths.indexOf(monthName) + 1;
-    var year = splittedDate[1];
+    var year = parseInt(splittedDate[1]);
 
-    console.log("MONTH: " + month);
-    console.log("YEAR: " + year);
+    return [month, year];
+}
 
+function getStartAndEndDate(date) {
+
+    var month = date.getMonth()+1;
+    var year = date.getFullYear();
+
+    var monthName = definedMonths[month-1];
     var endDay = definedMonthDays[monthName];
-    var startDate = '01/' + month + '/' + year;
-    var endDate = endDay + '/' + month + '/' + year;
+
+    if (month < 10) {
+        month = '0' + month;
+    }
+    if (endDay < 10) {
+        endDay = '0' + endDay;
+    }
+
+    var startDate = year + '-' + month + '-01';
+    var endDate = year + '-' + month + '-' + endDay;
+
+    return [startDate, endDate];
+}
+
+function retrieveTransactions(date, category) {
+    var limitDates = getStartAndEndDate(date);
+    var startDate = limitDates[0];
+    var endDate = limitDates[1];
+    return Models.MoneyTransaction.filter({category: category, date__ge: startDate, date__le: endDate}).all();
+}
+
+function sumTransactions(transactions) {
+    var sum = 0;
+    for (var x=0; x<transactions.length; x++) {
+        sum += convertToNumber(transactions[x].value);
+    }
+    return sum;
+}
+
+function calculateBudgetBalance(budgetItem, title) {
 
     //TODO: Change it to a SUM aggregation function call
-    var transactions = Models.MoneyTransaction.filter({category: budgetItem.category, date__ge: startDate, date__le: endDate}).all();
-    var totalSpent = 0;
-    for (var x=0; x<transactions.length; x++) {
-        totalSpent += transactions[x].value;
-    }
+    var dates = convertTitleToMonthYear(title)
+    var date = new Date(dates[1], dates[0], 1)
+    var transactions = retrieveTransactions(date, budgetItem.category)
+    var totalSpent = sumTransactions(transactions);
+    console.log("TOTAL SPENT: " + totalSpent)
+
     var balance = budgetItem.budget - totalSpent;
 
     console.log("BALANCE: " + balance)
 
     return balance;
+}
+
+function convertToNumber(value) {
+    if (typeof value === "number") return value;
+
+    return parseInt(removeCurrencySymbol(value.replace(',','.')));
 }
 
 function createMonthTitle(monthIndex, currentYear) {
