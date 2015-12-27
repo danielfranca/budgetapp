@@ -30,32 +30,7 @@ ApplicationWindow {
         id: modelBudgetItems
 
         Component.onCompleted: {
-            //Load from the database
             Models.init();
-            //TOOD: Needs to filter by month/year
-            var items = Models.BudgetItem.all();
-            var date = new Date()
-            if (items.length === 0) {
-                var categories = Models.Category.all()
-                for (var x = 0; x < categories.length; x++) {
-                    Models.BudgetItem.create({budget:0, category: categories[x].id, month: date.getMonth()+1, year: date.getFullYear()})
-                }
-                items = Models.BudgetItem.all();
-            }
-
-            for (var y=0; y < items.length; y++) {
-                var category = Models.Category.filter({id: items[y].category}).get()
-                var group = Models.Group.filter({id: category.categoryGroup}).get();
-                var budget = items[y].budget;
-                if (!budget) {
-                    budget = 0;
-                }
-
-                var transactions = Utils.retrieveTransactions(date, category.id)
-                console.log("*** NUMBER OF TRANSACTIONS: " + transactions.length)
-                var sum = Utils.sumTransactions(transactions)
-                modelBudgetItems.append({id: items[y].id, budget: budget, category: category.name, group: group.name, transactions: transactions, balance: sum-budget});
-            }
         }
     }
 
@@ -121,7 +96,56 @@ ApplicationWindow {
         id: page
         title: "Budget App"
         tabs: Utils.findMonths()
-        selectedTab: 2
+        selectedTab: 1
+
+        function loadModelBudgetItems(month, year, modelBudgetItems) {
+            modelBudgetItems.clear()
+
+            //Load from the database
+            //TOOD: Needs to filter by month/year
+            var items = Models.BudgetItem.filter({month: month, year: year}).all();
+            if (items.length === 0) {
+                var categories = Models.Category.all()
+                for (var x = 0; x < categories.length; x++) {
+                    Models.BudgetItem.create({budget:0, category: categories[x].id, month: month, year: year})
+                }
+                items = Models.BudgetItem.filter({month: month, year: year}).all();
+            }
+
+            for (var y=0; y < items.length; y++) {
+                var category = Models.Category.filter({id: items[y].category}).get()
+                var group = Models.Group.filter({id: category.categoryGroup}).get();
+                var budget = items[y].budget;
+                if (!budget) {
+                    budget = 0;
+                }
+
+                var baseDate = new Date(year, month, 1);
+                var transactions = Utils.retrieveTransactions(baseDate, category.id)
+                console.log("*** NUMBER OF TRANSACTIONS: " + transactions.length)
+                var sum = Utils.sumTransactions(transactions)
+                modelBudgetItems.append({id: items[y].id, budget: budget, category: category.name, group: group.name, transactions: transactions, balance: sum-budget});
+            }
+        }
+
+        Component.onCompleted: {
+            var arr = Utils.convertTitleToMonthYear(page.tabs[page.selectedTab])
+            var month = arr[0]
+            var year = arr[1]
+
+            loadModelBudgetItems(month, year, modelBudgetItems)
+
+        }
+
+        onSelectedTabChanged: {
+            console.log("Tab changed: currentMonth: " + page.cur)
+
+            var arr = Utils.convertTitleToMonthYear(page.tabs[page.selectedTab])
+            var month = arr[0]
+            var year = arr[1]
+
+            loadModelBudgetItems(month, year, modelBudgetItems)
+        }
 
         actions: [
             Action {
@@ -138,8 +162,7 @@ ApplicationWindow {
             model: page.tabs
 
             delegate: Tab {
-                //title: months[index]
-                property string selectedComponent: modelData[2]
+                property string selectedComponent: modelData[1]
 
                 ListView {
                     id: listViewBudgetItems

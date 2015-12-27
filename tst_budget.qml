@@ -57,9 +57,9 @@ TestCase {
 
     function test_find_months() {
         var now = new Date();
-        compare(Utils.findMonths(new Date(2015, 12, 01)), ['Nov/2015', 'Dec/2015', 'Jan/2016'])
-        compare(Utils.findMonths(new Date(2010, 06, 08)), ['May/2010', 'Jun/2010', 'Jul/2010'])
-        compare(Utils.findMonths(new Date(1983, 03, 07)), ['Feb/1983', 'Mar/1983', 'Apr/1983'])
+        compare(Utils.findMonths(new Date(2015, 11, 01)), ['Nov/2015', 'Dec/2015', 'Jan/2016'])
+        compare(Utils.findMonths(new Date(2010, 05, 08)), ['May/2010', 'Jun/2010', 'Jul/2010'])
+        compare(Utils.findMonths(new Date(1983, 02, 07)), ['Feb/1983', 'Mar/1983', 'Apr/1983'])
     }
 
     function test_get_days() {

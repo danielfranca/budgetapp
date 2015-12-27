@@ -74,37 +74,40 @@ function createMonthTitle(monthIndex, currentYear) {
     return definedMonths[monthIndex] + '/' + currentYear;
 }
 
-function findMonths(date) {
+function findMonths(date, indexes) {
     var months = [];
 
     if (!date) {
         date = new Date();
     }
 
+    if (typeof indexes === 'undefined') {
+        indexes = [-1, 0, 1];
+    }
+
     var monthIndex = date.getMonth();
     var currentYear = date.getFullYear();
 
-    months.push(createMonthTitle(monthIndex, currentYear));
+    for (var x=0; x<indexes.length; x++) {
+        var idxMonth = monthIndex + indexes[x];
+        var titleYear = currentYear;
 
-    monthIndex--;
+        if (idxMonth > 11) {
+            while (idxMonth > 0) {
+                idxMonth -= 12;
+                titleYear++;
+            }
+        } else if (idxMonth < 0) {
+            while (idxMonth < 11) {
+                idxMonth += 12
+                titleYear--;
+            }
+        }
 
-    if (monthIndex < 0) {
-        monthIndex = 12 + monthIndex;
-        currentYear--;
+        months.push(createMonthTitle(idxMonth, titleYear));
     }
 
-    months.push(createMonthTitle(monthIndex, currentYear));
-
-    monthIndex--;
-
-    if (monthIndex < 0) {
-        monthIndex = 12 + monthIndex;
-        currentYear--;
-    }
-
-    months.push(createMonthTitle(monthIndex, currentYear));
-
-    return months.reverse();
+    return months;//.reverse();
 }
 
 function removeCurrencySymbol(value) {
