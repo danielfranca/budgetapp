@@ -150,6 +150,10 @@ function formatNumber(value, currencySymbol, decimalSeparator) {
             finalValue += decimalSeparator;
             afterSeparator += 1;
         }
+        //Is minus
+        else if (value[x] === '-') {
+            finalValue += '-'
+        }
     }
 
     if (finalValue.length === 0) {

@@ -48,7 +48,8 @@ ApplicationWindow {
                 height: parent.height
                 width: parent.width / 2
                 text: category
-                valueText: Utils.formatNumber(balance, currencySymbol, decimalSeparator)
+                valueText: {
+                    valueLabel.color = (balance >= 0)?'blue':'red'; Utils.formatNumber(balance, currencySymbol, decimalSeparator) }
                 secondaryItem: TextField {
                     id: budgetedField
                     placeholderText: "Budgeted"
@@ -122,7 +123,7 @@ ApplicationWindow {
                 var baseDate = new Date(year, month, 1);
                 var transactions = Utils.retrieveTransactions(baseDate, category.id)
                 var sum = Utils.sumTransactions(transactions)
-                modelBudgetItems.append({id: budItem.id, budget: budget, category: category.name, group: group.name, transactions: transactions, balance: sum-budget});
+                modelBudgetItems.append({id: budItem.id, budget: budget, category: category.name, group: group.name, transactions: transactions, balance: budget-sum});
             }
         }
 
@@ -284,7 +285,6 @@ ApplicationWindow {
             }
 
             onAccepted: {
-                //var d = new Date();
                 if (!menuAddTransaction.selectedComponent)
                     return;
                 var categoryId = menuAddTransaction.selectedComponent.id;
@@ -294,6 +294,7 @@ ApplicationWindow {
                     var item = modelBudgetItems.get(x)
                     var bItem = Models.BudgetItem.filter({id: item.id}).get()
                     if (bItem.category === categoryId) {
+                        //WTF?
                         item.budget = Utils.calculateBudgetBalance(bItem, page.tabs[page.selectedTab])
                         var transactions = Utils.retrieveTransactions(d, categoryId)
                         var sum = Utils.sumTransactions(transactions)
