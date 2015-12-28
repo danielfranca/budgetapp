@@ -102,29 +102,31 @@ ApplicationWindow {
             modelBudgetItems.clear()
 
             //Load from the database
-            //TOOD: Needs to filter by month/year
-            var items = Models.BudgetItem.filter({month: month, year: year}).all();
-            if (items.length === 0) {
-                var categories = Models.Category.all()
-                for (var x = 0; x < categories.length; x++) {
-                    Models.BudgetItem.create({budget:0, category: categories[x].id, month: month, year: year})
-                }
-                items = Models.BudgetItem.filter({month: month, year: year}).all();
-            }
+            //Find all categories
+            var categories = Models.Category.all();
+            for (var i=0; i<categories.length; i++) {
+                var category = categories[i];
+                var budItem = Models.BudgetItem.filter({month: month+1, year: year, category: category.id}).get();
 
-            for (var y=0; y < items.length; y++) {
-                var category = Models.Category.filter({id: items[y].category}).get()
+                if (!budItem) {
+                    //In the DB month is 1-index
+                    budItem = Models.BudgetItem.create({budget:0, category: category.id, month: month+1, year: year})
+                }
+
                 var group = Models.Group.filter({id: category.categoryGroup}).get();
-                var budget = items[y].budget;
+                var budget = budItem.budget;
                 if (!budget) {
                     budget = 0;
                 }
 
+                if (category.id > 50) {
+                    console.log("HERE")
+                }
+
                 var baseDate = new Date(year, month, 1);
                 var transactions = Utils.retrieveTransactions(baseDate, category.id)
-                console.log("*** NUMBER OF TRANSACTIONS: " + transactions.length)
                 var sum = Utils.sumTransactions(transactions)
-                modelBudgetItems.append({id: items[y].id, budget: budget, category: category.name, group: group.name, transactions: transactions, balance: sum-budget});
+                modelBudgetItems.append({id: budItem.id, budget: budget, category: category.name, group: group.name, transactions: transactions, balance: sum-budget});
             }
         }
 
@@ -139,6 +141,8 @@ ApplicationWindow {
 
         onSelectedTabChanged: {
             console.log("Tab changed: currentMonth: " + page.cur)
+            if (typeof page.tabs === 'undefined')
+                return;
 
             var arr = Utils.convertTitleToMonthYear(page.tabs[page.selectedTab])
             var month = arr[0]

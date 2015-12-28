@@ -9,7 +9,7 @@ function convertTitleToMonthYear(title) {
     var month = definedMonths.indexOf(monthName) + 1;
     var year = parseInt(splittedDate[1]);
 
-    return [month, year];
+    return [month-1, year];
 }
 
 function getStartAndEndDate(date) {
