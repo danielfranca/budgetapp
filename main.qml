@@ -119,10 +119,6 @@ ApplicationWindow {
                     budget = 0;
                 }
 
-                if (category.id > 50) {
-                    console.log("HERE")
-                }
-
                 var baseDate = new Date(year, month, 1);
                 var transactions = Utils.retrieveTransactions(baseDate, category.id)
                 var sum = Utils.sumTransactions(transactions)
@@ -260,6 +256,10 @@ ApplicationWindow {
                 }
             }
 
+            DatePicker {
+                id: transactionDate
+            }
+
             MenuField {
                 id: menuAddTransaction
                 textRole: "name"
@@ -284,18 +284,17 @@ ApplicationWindow {
             }
 
             onAccepted: {
-                var d = new Date();
+                //var d = new Date();
                 if (!menuAddTransaction.selectedComponent)
                     return;
                 var categoryId = menuAddTransaction.selectedComponent.id;
+                var d = transactionDate.selectedDate;
                 var transaction = Models.MoneyTransaction.create({value: Utils.removeCurrencySymbol(transactionValue.text), category: categoryId, date: d.toISOString()});
                 for (var x=0; x < modelBudgetItems.count; x++) {
                     var item = modelBudgetItems.get(x)
                     var bItem = Models.BudgetItem.filter({id: item.id}).get()
                     if (bItem.category === categoryId) {
                         item.budget = Utils.calculateBudgetBalance(bItem, page.tabs[page.selectedTab])
-                        var dtArr = Utils.convertTitleToMonthYear(page.tabs[page.selectedTab])
-                        //var d = new Date(dtArr[1], dtArr[0], 1)
                         var transactions = Utils.retrieveTransactions(d, categoryId)
                         var sum = Utils.sumTransactions(transactions)
                         item.balance = item.budget - sum
