@@ -104,7 +104,8 @@ ApplicationWindow {
                         } else {
                             Models.BudgetItem.filter({id: id}).update({budget: Utils.removeCurrencySymbol(budgetedField.text)});
                             var budgetItem = Models.BudgetItem.filter({id: id}).get()
-                            itemCategory.valueText = Utils.formatNumber(balance, currencySymbol, decimalSeparator)
+                            var balanceUpdated = Utils.calculateBudgetBalance(budgetItem, page.tabs[page.selectedTab])
+                            itemCategory.valueText = Utils.formatNumber(balanceUpdated, currencySymbol, decimalSeparator)
                             budgetedField.text = Utils.formatNumber(budgetedField.text, currencySymbol, decimalSeparator);
                         }
                     }
