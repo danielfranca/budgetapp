@@ -34,6 +34,10 @@ ApplicationWindow {
         }
     }
 
+    ListModel {
+        id: transactionsModel
+    }
+
     Component {
         id: delegatedBudgetItem
 
@@ -49,7 +53,31 @@ ApplicationWindow {
                 width: parent.width / 2
                 text: category
                 valueText: {
-                    valueLabel.color = (balance >= 0)?'blue':'red'; Utils.formatNumber(balance, currencySymbol, decimalSeparator) }
+                    itemValueLabel.color = (balance >= 0)?'blue':'red'; Utils.formatNumber(balance, currencySymbol, decimalSeparator);
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        transactionsModel.clear()
+                        var arr = Utils.convertTitleToMonthYear(page.tabs[page.selectedTab])
+                        var month = arr[0];
+                        var year = arr[1];
+                        var baseDate = new Date(year, month, 1);
+                        var transactions = Utils.retrieveTransactions(baseDate, categoryId);
+                        for (var x=0; x<transactions.length; x++) {
+                            var transaction = transactions[x];
+                            transactionsModel.append({date: transaction.date, value: transaction.value})
+                        }
+
+                        transDialog.model = transactionsModel
+                        console.log("NUMBER OF ELEMENTS: " + transactionsModel.count)
+                        //transDialog.title = group + '/' + category
+                        transDialog.visible = true
+                        transDialog.open(parent)
+                    }
+                }
+
                 secondaryItem: TextField {
                     id: budgetedField
                     placeholderText: "Budgeted"
@@ -93,6 +121,33 @@ ApplicationWindow {
         }
     }
 
+    OverlayView {
+        id: transDialog
+
+        property alias model: myListView.model
+        width: parent.width * 0.8
+        height: parent.height * 0.9
+        visible: false
+        //hasActions: false
+
+        ListView {
+            id: myListView
+            height: parent.height
+            width: parent.width
+
+            delegate: Component {
+                View {
+                    width: parent.width
+                    height: 50
+                    ListItem.Subtitled {
+                        text: Utils.formatNumber(value, currencySymbol, decimalSeparator)
+                        valueText: date
+                    }
+                }
+            }
+        }
+    }
+
     initialPage: TabbedPage {
         id: page
         title: "Budget App"
@@ -123,7 +178,7 @@ ApplicationWindow {
                 var baseDate = new Date(year, month, 1);
                 var transactions = Utils.retrieveTransactions(baseDate, category.id)
                 var sum = Utils.sumTransactions(transactions)
-                modelBudgetItems.append({id: budItem.id, budget: budget, category: category.name, group: group.name, transactions: transactions, balance: budget-sum});
+                modelBudgetItems.append({id: budItem.id, budget: budget, category: category.name, categoryId: category.id, group: group.name, balance: budget-sum});
             }
         }
 
@@ -342,7 +397,7 @@ ApplicationWindow {
 
                     var transactions = Utils.retrieveTransactions(d, category.id)
                     var sum = Utils.sumTransactions(transactions)
-                    modelBudgetItems.append({id: b.id, budget: b.budget, category: cat.name, group: grp.name, transactions: transactions, balance: b.budget-sum});
+                    modelBudgetItems.append({id: b.id, budget: b.budget, category: cat.name, categoryId: cat.id, group: grp.name, balance: b.budget-sum});
                 }
             }
 
