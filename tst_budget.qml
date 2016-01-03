@@ -49,10 +49,10 @@ TestCase {
         compare(Utils.createMonthTitle(6, 2010), 'Jul/2010')
         compare(Utils.createMonthTitle(10, 1998), 'Nov/1998')
 
-        compare(Utils.convertTitleToMonthYear('Jan/2016'), [1, 2016])
-        compare(Utils.convertTitleToMonthYear('Jun/2010'), [6, 2010])
-        compare(Utils.convertTitleToMonthYear('Mar/1995'), [3, 1995])
-        compare(Utils.convertTitleToMonthYear('Feb/2020'), [2, 2020])
+        compare(Utils.convertTitleToMonthYear('Jan/2016'), [0, 2016])
+        compare(Utils.convertTitleToMonthYear('Jun/2010'), [5, 2010])
+        compare(Utils.convertTitleToMonthYear('Mar/1995'), [2, 1995])
+        compare(Utils.convertTitleToMonthYear('Feb/2020'), [1, 2020])
     }
 
     function test_find_months() {
@@ -93,7 +93,17 @@ TestCase {
         days = Utils.getStartAndEndDate(dt6)
         compare(days[0], '2014-11-01')
         compare(days[1], '2014-11-30')
+    }
 
+    function test_format_date() {
+        var dt = new Date(2016, 9, 8)
+        compare(Utils.formatDate(dt), '2016-10-07')
+
+        dt = new Date(2016, 1, 29)
+        compare(Utils.formatDate(dt), '2016-02-28')
+
+        dt = new Date(1983, 2, 8)
+        compare(Utils.formatDate(dt), '1983-03-07')
     }
 }
 

@@ -38,6 +38,26 @@ ApplicationWindow {
         id: transactionsModel
     }
 
+    function openTransactionsDialog(categoryId, parent) {
+        transactionsModel.clear()
+        var arr = Utils.convertTitleToMonthYear(page.tabs[page.selectedTab])
+        var month = arr[0];
+        var year = arr[1];
+        var baseDate = new Date(year, month, 1);
+        var transactions = Utils.retrieveTransactions(baseDate, categoryId);
+        for (var x=0; x<transactions.length; x++) {
+            var transaction = transactions[x];
+            transactionsModel.append({date: transaction.date, value: transaction.value})
+        }
+
+        transDialog.model = transactionsModel
+        console.log("NUMBER OF ELEMENTS: " + transactionsModel.count)
+        if (transactionsModel.count > 0) {
+            transDialog.visible = true
+            transDialog.open(parent)
+        }
+    }
+
     Component {
         id: delegatedBudgetItem
 
@@ -56,26 +76,17 @@ ApplicationWindow {
                     itemValueLabel.color = (balance >= 0)?'blue':'red'; Utils.formatNumber(balance, currencySymbol, decimalSeparator);
                 }
 
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        transactionsModel.clear()
-                        var arr = Utils.convertTitleToMonthYear(page.tabs[page.selectedTab])
-                        var month = arr[0];
-                        var year = arr[1];
-                        var baseDate = new Date(year, month, 1);
-                        var transactions = Utils.retrieveTransactions(baseDate, categoryId);
-                        for (var x=0; x<transactions.length; x++) {
-                            var transaction = transactions[x];
-                            transactionsModel.append({date: transaction.date, value: transaction.value})
-                        }
+                Component.onCompleted: {
+                    Qt.createQmlObject(
+                       'import QtQuick 2.0;
 
-                        transDialog.model = transactionsModel
-                        console.log("NUMBER OF ELEMENTS: " + transactionsModel.count)
-                        //transDialog.title = group + '/' + category
-                        transDialog.visible = true
-                        transDialog.open(parent)
-                    }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                openTransactionsDialog(categoryId, parent)
+                            }
+                        }', itemValueLabel
+                    )
                 }
 
                 secondaryItem: TextField {
@@ -344,7 +355,7 @@ ApplicationWindow {
                     return;
                 var categoryId = menuAddTransaction.selectedComponent.id;
                 var d = transactionDate.selectedDate;
-                var transaction = Models.MoneyTransaction.create({value: Utils.removeCurrencySymbol(transactionValue.text), category: categoryId, date: d.toISOString()});
+                var transaction = Models.MoneyTransaction.create({value: Utils.removeCurrencySymbol(transactionValue.text), category: categoryId, date: Utils.formatDate(d)});
                 for (var x=0; x < modelBudgetItems.count; x++) {
                     var item = modelBudgetItems.get(x)
                     var bItem = Models.BudgetItem.filter({id: item.id}).get()

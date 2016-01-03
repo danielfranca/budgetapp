@@ -3,6 +3,11 @@ var definedMonthDays = {"Jan": 31, "Feb": 29, "Mar": 31, "Apr": 30, "May": 31, "
 
 //Database: ~/Library/Application Support/BudgetApp/QML/OfflineStorage/Databases
 
+function formatDate(date) {
+    var str = date.toISOString();
+    return str.substring(0, 10)
+}
+
 function convertTitleToMonthYear(title) {
     var splittedDate = title.split('/');
     var monthName = splittedDate[0];
