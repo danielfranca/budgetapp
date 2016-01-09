@@ -7,7 +7,7 @@ var BudgetItem;
 var MoneyTransaction;
 
 function init() {
-    qmdb = new QuickModel.QMDatabase("BudgetApp3", "1.0");
+    qmdb = new QuickModel.QMDatabase("BudgetApp3", "1.1");
 
     console.log("Models::init");
 
@@ -28,6 +28,7 @@ function init() {
     });
 
     MoneyTransaction = qmdb.define("MoneyTransaction", {
+                           name: qmdb.String("Transaction Name", {accept_null: false}),
                            date: qmdb.Date("Date", {accept_null: false}),
                            category: qmdb.FK("Category", {references: 'Category'}),
                            value: qmdb.Float("Budget", {default: 0})

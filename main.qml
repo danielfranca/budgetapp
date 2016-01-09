@@ -48,7 +48,7 @@ ApplicationWindow {
         var transactions = Utils.retrieveTransactions(baseDate, categoryId);
         for (var x=0; x<transactions.length; x++) {
             var transaction = transactions[x];
-            transactionsModel.append({id: transaction.id, date: transaction.date, value: transaction.value})
+            transactionsModel.append({id: transaction.id, name: transaction.name, date: transaction.date, value: transaction.value})
         }
 
         transDialog.model = transactionsModel
@@ -152,8 +152,14 @@ ApplicationWindow {
                     width: root.width * 0.7
                     height: 50
                     ListItem.Subtitled {
-                        text: Utils.formatNumber(value, currencySymbol, decimalSeparator)
-                        valueText: new Date(date).toDateString()
+                        text: name
+
+                        secondaryItem: Text {
+                            id: theValue
+                            text: new Date(date).toDateString()
+                        }
+
+                        valueText: Utils.formatNumber(value, currencySymbol, decimalSeparator)
 
                         action: Icon {
                             anchors.centerIn: parent
@@ -326,6 +332,14 @@ ApplicationWindow {
             title: "New Transaction"
 
             TextField {
+                id: transactionName
+                placeholderText: "Name"
+                text: 'Transaction'
+                font.pixelSize: Units.dp(30)
+            }
+
+
+            TextField {
                 id: transactionValue
                 placeholderText: "Value"
                 text: '0.00'
@@ -338,10 +352,6 @@ ApplicationWindow {
                         transactionValue.text = Utils.formatNumber(transactionValue.text, currencySymbol, decimalSeparator);
                     }
                 }
-            }
-
-            DatePicker {
-                id: transactionDate
             }
 
             MenuField {
@@ -367,12 +377,17 @@ ApplicationWindow {
                 }
             }
 
+            DatePicker {
+                id: transactionDate
+            }
+
             onAccepted: {
-                if (!menuAddTransaction.selectedComponent)
+                if (!menuAddTransaction.selectedComponent || transactionName.text.length == 0)
                     return;
+
                 var categoryId = menuAddTransaction.selectedComponent.id;
                 var d = transactionDate.selectedDate;
-                var transaction = Models.MoneyTransaction.create({value: Utils.removeCurrencySymbol(transactionValue.text), category: categoryId, date: Utils.formatDate(d)});
+                var transaction = Models.MoneyTransaction.create({name: transactionName.text, value: Utils.removeCurrencySymbol(transactionValue.text), category: categoryId, date: Utils.formatDate(d)});
                 for (var x=0; x < modelBudgetItems.count; x++) {
                     var item = modelBudgetItems.get(x)
                     var bItem = Models.BudgetItem.filter({id: item.id}).get()
