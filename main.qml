@@ -12,7 +12,8 @@ ApplicationWindow {
     width: 640
     height: 1136
     visible: true
-    color: "lightcyan"    
+    color: "lightcyan"
+    id: root
     property var currencySymbols: ["€", "$", "R$"];
     property string currencySymbol: ""
     property var decimalSeparators: [".", ","];
@@ -38,7 +39,7 @@ ApplicationWindow {
         id: transactionsModel
     }
 
-    function openTransactionsDialog(categoryId, parent) {
+    function openTransactionsDialog(categoryId, category, group, parent) {
         transactionsModel.clear()
         var arr = Utils.convertTitleToMonthYear(page.tabs[page.selectedTab])
         var month = arr[0];
@@ -51,10 +52,12 @@ ApplicationWindow {
         }
 
         transDialog.model = transactionsModel
+        transDialog.title = group + '/' + category
         console.log("NUMBER OF ELEMENTS: " + transactionsModel.count)
         if (transactionsModel.count > 0) {
-            transDialog.visible = true
+            //transDialog.visible = true
             transDialog.open(parent)
+            //transDialog.show()
         }
     }
 
@@ -83,7 +86,7 @@ ApplicationWindow {
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
-                                openTransactionsDialog(categoryId, parent)
+                                openTransactionsDialog(categoryId, category, group, root)
                             }
                         }', itemValueLabel
                     )
@@ -133,23 +136,22 @@ ApplicationWindow {
         }
     }
 
-    OverlayView {
+    Dialog {
         id: transDialog
 
         property alias model: myListView.model
         width: parent.width * 0.8
         height: parent.height * 0.9
-        visible: false
-        //hasActions: false
+        hasActions: false
 
         ListView {
             id: myListView
-            height: parent.height
-            width: parent.width
+            height: contentHeight
+            width: contentWidth
 
             delegate: Component {
                 View {
-                    width: parent.width
+                    width: root.width * 0.7
                     height: 50
                     ListItem.Subtitled {
                         text: Utils.formatNumber(value, currencySymbol, decimalSeparator)
