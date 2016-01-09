@@ -48,16 +48,14 @@ ApplicationWindow {
         var transactions = Utils.retrieveTransactions(baseDate, categoryId);
         for (var x=0; x<transactions.length; x++) {
             var transaction = transactions[x];
-            transactionsModel.append({date: transaction.date, value: transaction.value})
+            transactionsModel.append({id: transaction.id, date: transaction.date, value: transaction.value})
         }
 
         transDialog.model = transactionsModel
         transDialog.title = group + '/' + category
         console.log("NUMBER OF ELEMENTS: " + transactionsModel.count)
         if (transactionsModel.count > 0) {
-            //transDialog.visible = true
             transDialog.open(parent)
-            //transDialog.show()
         }
     }
 
@@ -156,6 +154,22 @@ ApplicationWindow {
                     ListItem.Subtitled {
                         text: Utils.formatNumber(value, currencySymbol, decimalSeparator)
                         valueText: date
+
+                        action: Icon {
+                            anchors.centerIn: parent
+                            name: "content/remove_circle"
+                            visible: true
+                            size: Units.dp(32)
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    Models.MoneyTransaction.filter({id: id}).remove();
+                                    transactionsModel.remove(index)
+                                }
+                            }
+                        }
+
                     }
                 }
             }
