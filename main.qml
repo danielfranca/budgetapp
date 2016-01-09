@@ -153,7 +153,7 @@ ApplicationWindow {
                     height: 50
                     ListItem.Subtitled {
                         text: Utils.formatNumber(value, currencySymbol, decimalSeparator)
-                        valueText: date
+                        valueText: new Date(date).toDateString()
 
                         action: Icon {
                             anchors.centerIn: parent
