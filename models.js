@@ -5,6 +5,7 @@ var Group;
 var Category;
 var BudgetItem;
 var MoneyTransaction;
+var CheckinAccount;
 
 function init() {
     qmdb = new QuickModel.QMDatabase("BudgetApp3", "1.1");
@@ -32,6 +33,12 @@ function init() {
                            date: qmdb.Date("Date", {accept_null: false}),
                            category: qmdb.FK("Category", {references: 'Category'}),
                            value: qmdb.Float("Budget", {default: 0})
+    });
+
+    CheckinAccount = qmdb.define("CheckinAccount", {
+                           month: qmdb.Integer("Month", {accept_null: false}),
+                           year: qmdb.Integer("Year", {accept_null: false}),
+                           value: qmdb.Float("Value", {accept_null: false, default: 0})
     });
 }
 

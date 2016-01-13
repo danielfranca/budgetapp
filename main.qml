@@ -289,10 +289,31 @@ ApplicationWindow {
                                 inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 horizontalAlignment: TextInput.AlignRight
 
+                                Component.onCompleted: {
+                                    var dts = Utils.convertTitleToMonthYear(page.tabs[page.selectedTab]);
+                                    var checkin = Models.CheckinAccount.filter({month: dts[0]+1, year: dts[1]}).get();
+                                    var value = 0;
+                                    if (checkin) {
+                                        value = checkin.value;
+                                    }
+
+                                    checkinAccount.text = Utils.formatNumber(value, currencySymbol, decimalSeparator);
+                                }
+
                                 onActiveFocusChanged: {
                                     if (activeFocus) {
                                         checkinAccount.text = Utils.removeCurrencySymbol(checkinAccount.text);
                                     } else {
+                                        var dts = Utils.convertTitleToMonthYear(page.tabs[page.selectedTab]);
+                                        var value = Utils.removeCurrencySymbol(checkinAccount.text);
+
+                                        if (Models.CheckinAccount.filter({month: dts[0]+1, year: dts[1]}).all().length > 0) {
+                                            Models.CheckinAccount.filter({month: dts[0]+1, year: dts[1]}).update({value: value});
+                                        }
+                                        else {
+                                            Models.CheckinAccount.create({month: dts[0]+1, year: dts[1], value: value});
+                                        }
+
                                         checkinAccount.text = Utils.formatNumber(checkinAccount.text, currencySymbol, decimalSeparator);
                                     }
                                 }
