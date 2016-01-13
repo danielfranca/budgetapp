@@ -7,5 +7,6 @@
         <file>tst_budget.qml</file>
         <file>utils.js</file>
         <file>TransactionsDialog.qml</file>
+        <file>SwipeArea.qml</file>
     </qresource>
 </RCC>

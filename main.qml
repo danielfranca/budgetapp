@@ -65,6 +65,34 @@ ApplicationWindow {
             property alias budgetValue: itemCategory.valueText
 
             ListItem.Subtitled {
+                SwipeArea {
+                    id: swipeArea
+                    anchors.fill: parent
+                    onMove: {
+                        if (x > 0 && x < 30) {
+                            viewCategory.x += x
+                        }
+                        console.log("POSITION CHANGED")
+                    }
+
+                    onSwipe: {
+                        if(direction === "right" && removeIcon.visible === false) {
+                            console.log("SWIPE RIGHT")
+                            viewCategory.x = 32;
+                            removeIcon.visible = true
+                        }
+                        else if(direction === "left" && removeIcon.visible === true) {
+                            console.log("SWIPE LEFT")
+                            viewCategory.x = 0;
+                            removeIcon.visible = false
+                        }
+                        else {
+                            viewCategory.x = 0;
+                        }
+                    }
+                }
+
+
                 id: itemCategory
                 height: parent.height
                 width: parent.width / 2
@@ -113,9 +141,10 @@ ApplicationWindow {
                 tintColor: theme.tabHighlightColor
 
                 action: Icon {
-                    anchors.centerIn: parent
+                    anchors.left: parent.left
                     name: "content/remove_circle"
-                    visible: true
+                    id: removeIcon
+                    visible: false
                     size: Units.dp(32)
 
                     MouseArea {
@@ -331,6 +360,7 @@ ApplicationWindow {
                             }
                         }
                     }
+
                     delegate: delegatedBudgetItem
                 }
             }
