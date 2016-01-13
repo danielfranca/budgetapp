@@ -29,10 +29,6 @@ ApplicationWindow {
 
     ListModel {
         id: modelBudgetItems
-
-        Component.onCompleted: {
-            Models.init();
-        }
     }
 
     ListModel {
@@ -278,6 +274,7 @@ ApplicationWindow {
                     }
 
                     footer: Component {
+
                         View {
                             id: viewFooter
                             backgroundColor: theme.tabHighlightColor;
@@ -303,7 +300,10 @@ ApplicationWindow {
 
                             Label {
                                 id: totalBalance
-                                text: Utils.formatNumber("105.10", currencySymbol, decimalSeparator)
+                                text: {
+                                    Models.init();
+                                    return Utils.formatNumber(Utils.calculateTotalBalance(page.tabs[page.selectedTab], checkinAccount.text), currencySymbol, decimalSeparator)
+                                }
                                 font.pixelSize: Units.dp(25)
                                 anchors.right: parent.right
                                 anchors.rightMargin: 10

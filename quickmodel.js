@@ -285,7 +285,7 @@ QMModel.prototype = {
                 console.log("Run SQL: " + sql);
                 rs = tx.executeSql(sql)
 
-                //console.log("RESULT SET: " + rs);
+                console.log("RESULT SET: " + rs);
             }
         )
 

@@ -9,6 +9,13 @@ function formatDate(date) {
 }
 
 function convertTitleToMonthYear(title) {
+
+    console.log("convertTitleToMonthYear:TITLE: " + title);
+
+    if (title === undefined) {
+        return;
+    }
+
     var splittedDate = title.split('/');
     var monthName = splittedDate[0];
     var month = definedMonths.indexOf(monthName) + 1;
@@ -42,7 +49,27 @@ function retrieveTransactions(date, category) {
     var limitDates = getStartAndEndDate(date);
     var startDate = limitDates[0];
     var endDate = limitDates[1];
-    return Models.MoneyTransaction.filter({category: category, date__ge: startDate, date__le: endDate}).all();
+
+    if (category) {
+        return Models.MoneyTransaction.filter({category: category, date__ge: startDate, date__le: endDate}).all();
+    }
+    else {
+        return Models.MoneyTransaction.filter({date__ge: startDate, date__le: endDate}).all();
+    }
+}
+
+function retrieveBudgetItems(date) {
+    return Models.BudgetItem.filter({month: date.getMonth()+1, year: date.getFullYear()}).all();
+}
+
+function sumBudgetItems(date) {
+    var items = retrieveBudgetItems(date);
+    var total = 0;
+    for (var x=0; x < items.length; x++) {
+        total += items[x].budget;
+    }
+
+    return total;
 }
 
 function sumTransactions(transactions) {
@@ -56,18 +83,45 @@ function sumTransactions(transactions) {
 function calculateBudgetBalance(budgetItem, title) {
 
     //TODO: Change it to a SUM aggregation function call
+    console.log("calculateBudgetBalance: TITLE: " + title)
     var dates = convertTitleToMonthYear(title)
     var date = new Date(dates[1], dates[0], 1)
     var transactions = retrieveTransactions(date, budgetItem.category)
     var totalSpent = sumTransactions(transactions);
-    console.log("TOTAL SPENT: " + totalSpent)
+    console.log("BUDGET SPENT: " + totalSpent)
 
     var balance = budgetItem.budget - totalSpent;
+
+    console.log("BUDGET BALANCE: " + balance)
+
+    return balance;
+}
+
+function calculateTotalBalance(title, checkin) {
+
+    //TODO: Change it to a SUM aggregation function call
+    console.log("calculateTotalBalance: TITLE: " + title);
+    console.log("CHECKIN BEFORE PARSE: " + checkin)
+    checkin = parseInt(removeCurrencySymbol(checkin))
+
+    console.log("CHECKIN: " + checkin)
+    if (!checkin) {
+        checkin = 0;
+    }
+
+    var dates = convertTitleToMonthYear(title)
+    var date = new Date(dates[1], dates[0], 1)
+    var transactions = retrieveTransactions(date)
+    var totalSpent = sumTransactions(transactions);
+    console.log("TOTAL SPENT: " + totalSpent)
+
+    var balance = checkin - totalSpent;
 
     console.log("BALANCE: " + balance)
 
     return balance;
 }
+
 
 function convertToNumber(value) {
     if (typeof value === "number") return value;
