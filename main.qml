@@ -65,32 +65,41 @@ ApplicationWindow {
             property alias budgetValue: itemCategory.valueText
 
             ListItem.Subtitled {
-                SwipeArea {
+                /*SwipeArea {
                     id: swipeArea
                     anchors.fill: parent
                     onMove: {
-                        if (x > 0 && x < 30) {
-                            viewCategory.x += x
+                        removeIcon.x += x;
+
+                        if (x > 0 && viewCategory.text.find("    ") === 0) {
+                            removeIcon.x = 0;
                         }
-                        console.log("POSITION CHANGED")
+                        else if (x < 0 && viewCategory.x < 0) {
+                            removeIcon.x = -28;
+                        }
+                        console.log("REMOVE ICON X: " + removeIcon.x);
+                    }
+
+                    onReleased: {
+                        console.log("RELEASED!")
                     }
 
                     onSwipe: {
-                        if(direction === "right" && removeIcon.visible === false) {
+                        if(direction === "right") {
                             console.log("SWIPE RIGHT")
-                            viewCategory.x = 32;
-                            removeIcon.visible = true
+                            viewCategory.x = 34;
+                            removeIcon.x = 0;
                         }
-                        else if(direction === "left" && removeIcon.visible === true) {
+                        else if(direction === "left") {
                             console.log("SWIPE LEFT")
                             viewCategory.x = 0;
-                            removeIcon.visible = false
+                            removeIcon.x = -32;
                         }
                         else {
                             viewCategory.x = 0;
                         }
                     }
-                }
+                }*/
 
 
                 id: itemCategory
@@ -100,6 +109,17 @@ ApplicationWindow {
                 valueText: {
                     itemValueLabel.color = (balance >= 0)?'blue':'red'; Utils.formatNumber(balance, currencySymbol, decimalSeparator);
                 }
+
+                /*ActionButton {
+                    //text: "Remove"
+                    id: removeIcon
+                    width: Units.dp(28)
+                    height: Units.dp(28)
+                    backgroundColor: Palette.colors["red"]["700"]
+                    iconName: "content/remove_circle"
+                    //visible: true
+                    x: -28
+                }*/
 
                 Component.onCompleted: {
                     Qt.createQmlObject(
@@ -144,8 +164,8 @@ ApplicationWindow {
                     anchors.left: parent.left
                     name: "content/remove_circle"
                     id: removeIcon
-                    visible: false
-                    size: Units.dp(32)
+                    visible: true
+                    size: Units.dp(25)
 
                     MouseArea {
                         anchors.fill: parent
