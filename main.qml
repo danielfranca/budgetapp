@@ -170,7 +170,9 @@ ApplicationWindow {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
+                            var bItem = Models.BudgetItem.filter({id: id}).get();
                             Models.BudgetItem.filter({id: id}).remove();
+                            Models.Category.filter({id: bItem.category}).remove();
                             modelBudgetItems.remove(index)
                         }
                     }
@@ -233,40 +235,12 @@ ApplicationWindow {
         tabs: Utils.findMonths()
         selectedTab: 1
 
-        function loadModelBudgetItems(month, year, modelBudgetItems) {
-            modelBudgetItems.clear()
-
-            //Load from the database
-            //Find all categories
-            var categories = Models.Category.all();
-            for (var i=0; i<categories.length; i++) {
-                var category = categories[i];
-                var budItem = Models.BudgetItem.filter({month: month+1, year: year, category: category.id}).get();
-
-                if (!budItem) {
-                    //In the DB month is 1-index
-                    budItem = Models.BudgetItem.create({budget:0, category: category.id, month: month+1, year: year})
-                }
-
-                var group = Models.Group.filter({id: category.categoryGroup}).get();
-                var budget = budItem.budget;
-                if (!budget) {
-                    budget = 0;
-                }
-
-                var baseDate = new Date(year, month, 1);
-                var transactions = Utils.retrieveTransactions(baseDate, category.id)
-                var sum = Utils.sumTransactions(transactions)
-                modelBudgetItems.append({id: budItem.id, budget: budget, category: category.name, categoryId: category.id, group: group.name, balance: budget-sum});
-            }
-        }
-
         Component.onCompleted: {
             var arr = Utils.convertTitleToMonthYear(page.tabs[page.selectedTab])
             var month = arr[0]
             var year = arr[1]
 
-            loadModelBudgetItems(month, year, modelBudgetItems)
+            Utils.loadModelBudgetItems(month, year, modelBudgetItems)
 
         }
 
@@ -279,7 +253,7 @@ ApplicationWindow {
             var month = arr[0]
             var year = arr[1]
 
-            loadModelBudgetItems(month, year, modelBudgetItems)
+            Utils.loadModelBudgetItems(month, year, modelBudgetItems)
         }
 
         actions: [
@@ -511,7 +485,9 @@ ApplicationWindow {
 
                     var transactions = Utils.retrieveTransactions(d, category.id)
                     var sum = Utils.sumTransactions(transactions)
-                    modelBudgetItems.append({id: b.id, budget: b.budget, category: cat.name, categoryId: cat.id, group: grp.name, balance: b.budget-sum});
+
+                    Utils.loadModelBudgetItems(d.getMonth()+1, d.getFullYear(), modelBudgetItems)
+                    //modelBudgetItems.append({id: b.id, budget: b.budget, category: cat.name, categoryId: cat.id, group: grp.name, balance: b.budget-sum});
                 }
             }
 

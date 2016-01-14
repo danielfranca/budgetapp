@@ -226,3 +226,31 @@ function formatNumber(value, currencySymbol, decimalSeparator) {
     return currencySymbol + ' ' + finalValue;
 }
 
+function loadModelBudgetItems(month, year, modelBudgetItems) {
+    modelBudgetItems.clear()
+
+    //Load from the database
+    //Find all categories
+    var categories = Models.Category.order('categoryGroup').all();
+    for (var i=0; i<categories.length; i++) {
+        var category = categories[i];
+        var budItem = Models.BudgetItem.filter({month: month+1, year: year, category: category.id}).get();
+
+        if (!budItem) {
+            //In the DB month is 1-index
+            budItem = Models.BudgetItem.create({budget:0, category: category.id, month: month+1, year: year})
+        }
+
+        var group = Models.Group.filter({id: category.categoryGroup}).get();
+        var budget = budItem.budget;
+        if (!budget) {
+            budget = 0;
+        }
+
+        var baseDate = new Date(year, month, 1);
+        var transactions = Utils.retrieveTransactions(baseDate, category.id)
+        var sum = Utils.sumTransactions(transactions)
+        modelBudgetItems.append({id: budItem.id, budget: budget, category: category.name, categoryId: category.id, group: group.name, balance: budget-sum});
+    }
+}
+
