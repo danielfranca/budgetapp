@@ -110,17 +110,6 @@ ApplicationWindow {
                     itemValueLabel.color = (balance >= 0)?'blue':'red'; Utils.formatNumber(balance, currencySymbol, decimalSeparator);
                 }
 
-                /*ActionButton {
-                    //text: "Remove"
-                    id: removeIcon
-                    width: Units.dp(28)
-                    height: Units.dp(28)
-                    backgroundColor: Palette.colors["red"]["700"]
-                    iconName: "content/remove_circle"
-                    //visible: true
-                    x: -28
-                }*/
-
                 Component.onCompleted: {
                     Qt.createQmlObject(
                        'import QtQuick 2.0;
@@ -193,15 +182,39 @@ ApplicationWindow {
         property int categoryId
         property int budgetId
         property int index
-        //property var onConfirmDelete
 
         text: "Are you sure you want to delete the category " + category + "?";
 
         onAccepted: {
+            var cat = Models.Category.filter({id: categoryId}).get();
+
             Models.Category.filter({id: categoryId}).remove();
             Models.BudgetItem.filter({id: budgetId}).remove();
             modelBudgetItems.remove(index);
-            //onConfirmDelete();
+
+            if (cat) {
+                var categories = Models.Category.filter({categoryGroup: cat.categoryGroup}).all();
+                if (categories.length === 0) {
+                    var group = Models.Group.filter({id: cat.categoryGroup}).get();
+                    deleteGroupDialog.group = group.name;
+                    deleteGroupDialog.groupId = group.id;
+                    deleteGroupDialog.show();
+                }
+            }
+        }
+    }
+
+    Dialog {
+        id: deleteGroupDialog
+
+        title: "Delete group"
+        property string group
+        property int groupId
+
+        text: "The group " + group + " is empty. Do you want to delete it?";
+
+        onAccepted: {
+            Models.Group.filter({id: groupId}).remove();
         }
     }
 
@@ -523,12 +536,6 @@ ApplicationWindow {
                     backgroundColor: theme.primaryDarkColor
 
                     onClicked: groupDialog.show()
-                }
-
-                ActionButton {
-                    text: "Remove"
-                    backgroundColor: Palette.colors["red"]["700"]
-                    iconName: "content/remove_circle"
                 }
             }
         }
