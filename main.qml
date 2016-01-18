@@ -170,14 +170,38 @@ ApplicationWindow {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
+
                             var bItem = Models.BudgetItem.filter({id: id}).get();
-                            Models.BudgetItem.filter({id: id}).remove();
-                            Models.Category.filter({id: bItem.category}).remove();
-                            modelBudgetItems.remove(index)
+
+                            deleteCategoryDialog.category = category
+                            deleteCategoryDialog.categoryId = bItem.category
+                            deleteCategoryDialog.budgetId = id;
+                            deleteCategoryDialog.index = index;
+                            deleteCategoryDialog.show();
                         }
                     }
                 }
             }
+        }
+    }
+
+    Dialog {
+        id: deleteCategoryDialog
+
+        title: "Delete category"
+        property string category
+        property int categoryId
+        property int budgetId
+        property int index
+        //property var onConfirmDelete
+
+        text: "Are you sure you want to delete the category " + category + "?";
+
+        onAccepted: {
+            Models.Category.filter({id: categoryId}).remove();
+            Models.BudgetItem.filter({id: budgetId}).remove();
+            modelBudgetItems.remove(index);
+            //onConfirmDelete();
         }
     }
 
